@@ -8,10 +8,10 @@ import {
   Surface,
   Divider,
 } from "react-native-paper";
-import { useTheme } from "./_layout";
+import { useThemeStore } from "../store/themeStore";
 
 export default function Index() {
-  const { isDarkMode, toggleTheme } = useTheme();
+  const { isDarkMode, toggleTheme } = useThemeStore();
   const theme = usePaperTheme();
 
   return (
