@@ -7,7 +7,7 @@ import { useAuthStore } from '@/store/authStore';
 
 export default function VerifyEmailScreen() {
   const theme = useTheme();
-  const params = useLocalSearchParams<{ email?: string }>();
+  const params = useLocalSearchParams<{ email?: string; username?: string }>();
   const { confirmSignUp, resendCode, isLoading, error, clearError } = useAuthStore();
 
   const [code, setCode] = useState('');
@@ -15,6 +15,7 @@ export default function VerifyEmailScreen() {
   const [resendSuccess, setResendSuccess] = useState(false);
 
   const email = params.email || '';
+  const username = params.username || '';
 
   const validateCode = () => {
     if (!code.trim()) {
@@ -31,7 +32,8 @@ export default function VerifyEmailScreen() {
   const handleVerify = async () => {
     if (!validateCode()) return;
 
-    const result = await confirmSignUp(email, code.trim());
+    // Use username for confirmation (not email)
+    const result = await confirmSignUp(username, code.trim());
 
     if (result.success) {
       // Navigate to sign in screen
@@ -40,7 +42,8 @@ export default function VerifyEmailScreen() {
   };
 
   const handleResendCode = async () => {
-    const result = await resendCode(email);
+    // Use username for resend (not email)
+    const result = await resendCode(username);
     if (result.success) {
       setResendSuccess(true);
     }

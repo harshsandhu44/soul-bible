@@ -57,7 +57,7 @@ export async function signUpUser(params: SignUpParams) {
       },
     });
 
-    return { success: true, userId };
+    return { success: true, userId, username };
   } catch (error: any) {
     console.error('Sign up error:', error);
     return { success: false, error: error.message || 'Sign up failed' };

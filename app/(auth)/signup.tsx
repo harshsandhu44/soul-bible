@@ -79,11 +79,14 @@ export default function SignUpScreen() {
       lastName: formData.lastName.trim(),
     });
 
-    if (result.success) {
-      // Navigate to verification screen
+    if (result.success && result.username) {
+      // Navigate to verification screen with both email and username
       router.push({
         pathname: '/(auth)/verify-email',
-        params: { email: formData.email.trim() },
+        params: {
+          email: formData.email.trim(),
+          username: result.username,
+        },
       });
     }
   };
