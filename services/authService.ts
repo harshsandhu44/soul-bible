@@ -11,6 +11,7 @@ import {
   autoSignIn,
 } from 'aws-amplify/auth';
 import * as SecureStore from 'expo-secure-store';
+import * as Crypto from 'expo-crypto';
 
 const CREDENTIALS_KEY = 'soul-bible-credentials';
 
@@ -41,8 +42,11 @@ export interface AuthUser {
  */
 export async function signUpUser(params: SignUpParams) {
   try {
+    // Generate a unique username using UUID since the pool uses email as an alias
+    const username = Crypto.randomUUID();
+
     const { userId } = await signUp({
-      username: params.email,
+      username,
       password: params.password,
       options: {
         userAttributes: {
