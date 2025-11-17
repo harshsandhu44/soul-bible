@@ -10,9 +10,9 @@ import {
   resendSignUpCode,
   autoSignIn,
 } from 'aws-amplify/auth';
-import * as Keychain from 'react-native-keychain';
+import * as SecureStore from 'expo-secure-store';
 
-const CREDENTIALS_SERVICE = 'soul-bible-auth';
+const CREDENTIALS_KEY = 'soul-bible-credentials';
 
 export interface SignUpParams {
   email: string;
@@ -200,9 +200,8 @@ export async function confirmPasswordReset(
  */
 async function storeCredentials(username: string, password: string) {
   try {
-    await Keychain.setGenericPassword(username, password, {
-      service: CREDENTIALS_SERVICE,
-    });
+    const credentialsData = JSON.stringify({ username, password });
+    await SecureStore.setItemAsync(CREDENTIALS_KEY, credentialsData);
   } catch (error) {
     console.error('Failed to store credentials:', error);
   }
@@ -213,11 +212,10 @@ async function storeCredentials(username: string, password: string) {
  */
 export async function getStoredCredentials() {
   try {
-    const credentials = await Keychain.getGenericPassword({
-      service: CREDENTIALS_SERVICE,
-    });
+    const credentialsData = await SecureStore.getItemAsync(CREDENTIALS_KEY);
 
-    if (credentials) {
+    if (credentialsData) {
+      const credentials = JSON.parse(credentialsData);
       return {
         username: credentials.username,
         password: credentials.password,
@@ -235,9 +233,7 @@ export async function getStoredCredentials() {
  */
 async function clearStoredCredentials() {
   try {
-    await Keychain.resetGenericPassword({
-      service: CREDENTIALS_SERVICE,
-    });
+    await SecureStore.deleteItemAsync(CREDENTIALS_KEY);
   } catch (error) {
     console.error('Failed to clear credentials:', error);
   }
