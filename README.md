@@ -1,50 +1,146 @@
-# Welcome to your Expo app 👋
+# Soul Bible
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A spiritual companion app built with React Native and Expo, featuring AWS Cognito authentication and Material Design 3 theming.
 
-## Get started
+## Features
 
-1. Install dependencies
+- 🔐 **Complete Authentication System** - AWS Cognito integration with custom UI
+- 🎨 **Material Design 3** - Beautiful, modern UI with light and dark mode
+- 🔄 **Auto-Login** - Secure credential storage with react-native-keychain
+- 📱 **Cross-Platform** - Runs on iOS, Android, and Web
+- ⚡ **Modern Stack** - React Native Paper, Zustand, Expo Router
 
-   ```bash
-   npm install
-   ```
+## Get Started
 
-2. Start the app
+### 1. Install Dependencies
 
-   ```bash
-   npx expo start
-   ```
+```bash
+npm install
+```
 
-In the output, you'll find options to open the app in a
+### 2. Start the App
+
+```bash
+npx expo start
+```
+
+In the output, you'll find options to open the app in:
 
 - [development build](https://docs.expo.dev/develop/development-builds/introduction/)
 - [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
 - [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+- [Expo Go](https://expo.dev/go)
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+## Authentication
 
-## Get a fresh project
+### Features
 
-When you're ready, run:
+- **Sign Up** - Create account with email, password, first name, and last name
+- **Email Verification** - 6-digit code verification via email
+- **Sign In** - Login with email and password
+- **Remember Me** - Secure auto-login with stored credentials
+- **Forgot Password** - Request and confirm password reset
+- **Route Protection** - Automatic redirection based on auth status
 
-```bash
-npm run reset-project
+### Cognito Configuration
+
+The app is configured to use AWS Cognito with the following settings:
+
+```typescript
+User Pool ID: eu-central-1_Hk1iUXIym
+Client ID: 3cdfnuv8j649iba11h5ik7rv35
+Region: eu-central-1
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+### Password Requirements
 
-## Learn more
+- Minimum 8 characters
+- Must include uppercase letter
+- Must include lowercase letter
+- Must include number
+- Must include special character (@$!%*?&)
 
-To learn more about developing your project with Expo, look at the following resources:
+### Testing Authentication
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+1. Run the app and navigate to the welcome screen
+2. Tap "Get Started" to create a new account
+3. Fill out the sign up form with your details
+4. Check your email for the verification code
+5. Enter the code to verify your account
+6. Sign in with your credentials
 
-## Join the community
+## Project Structure
 
-Join our community of developers creating universal apps.
+```
+soul-bible/
+├── app/
+│   ├── (auth)/               # Authentication screens
+│   │   ├── welcome.tsx       # Onboarding screen
+│   │   ├── signin.tsx        # Sign in form
+│   │   ├── signup.tsx        # Sign up form
+│   │   ├── verify-email.tsx  # Email verification
+│   │   ├── forgot-password.tsx
+│   │   ├── reset-password.tsx
+│   │   └── _layout.tsx       # Auth navigation
+│   ├── _layout.tsx           # Root layout with auth protection
+│   └── index.tsx             # Home screen
+├── config/
+│   └── amplify.ts            # AWS Amplify configuration
+├── services/
+│   └── authService.ts        # Authentication service layer
+├── store/
+│   ├── authStore.ts          # Auth state management (Zustand)
+│   └── themeStore.ts         # Theme state management
+└── constants/
+    └── theme.ts              # Material Design 3 themes
+```
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## Tech Stack
+
+- **React Native** - Cross-platform mobile framework
+- **Expo** - Development platform and tooling
+- **Expo Router** - File-based navigation
+- **React Native Paper** - Material Design 3 components
+- **AWS Amplify** - Authentication and backend integration
+- **Zustand** - Lightweight state management
+- **TypeScript** - Type safety
+
+## Architecture
+
+### Service Layer
+Authentication logic is abstracted in `services/authService.ts`, providing clean functions for:
+- Sign up with user attributes
+- Email verification and code resend
+- Sign in with auto-login support
+- Sign out and credential clearing
+- Password reset flow
+
+### State Management
+Zustand stores handle:
+- **authStore** - User state, auth status, loading states, auth actions
+- **themeStore** - Theme mode, system theme sync, toggle functionality
+
+### Route Protection
+The root layout (`app/_layout.tsx`) implements:
+- Auth status check on app load
+- Auto-login with stored credentials
+- Automatic redirects based on authentication state
+- Loading screen during initialization
+
+## Security
+
+- **Secure Storage** - Credentials stored using iOS Keychain and Android Keystore
+- **HTTPS Only** - All API communications use HTTPS
+- **Password Policy** - Enforced by AWS Cognito
+- **Token Management** - Handled automatically by AWS Amplify
+
+## Learn More
+
+- [Expo Documentation](https://docs.expo.dev/)
+- [React Native Paper](https://reactnativepaper.com/)
+- [AWS Amplify Auth](https://docs.amplify.aws/javascript/build-a-backend/auth/)
+- [Zustand Documentation](https://zustand-demo.pmnd.rs/)
+
+## Backend
+
+For backend API integration and authentication details, refer to the documentation in the backend repository.
