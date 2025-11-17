@@ -1,90 +1,127 @@
 import { MD3LightTheme, MD3DarkTheme } from "react-native-paper";
 
-// Custom Material Design 3 color palette
+// Shadcn-inspired Material Design 3 color palette
+// Neutral grayscale theme with clean aesthetics
 const lightColors = {
-  primary: "rgb(103, 80, 164)",
-  onPrimary: "rgb(255, 255, 255)",
-  primaryContainer: "rgb(234, 221, 255)",
-  onPrimaryContainer: "rgb(33, 0, 94)",
-  secondary: "rgb(98, 91, 113)",
-  onSecondary: "rgb(255, 255, 255)",
-  secondaryContainer: "rgb(232, 222, 248)",
-  onSecondaryContainer: "rgb(30, 25, 43)",
-  tertiary: "rgb(125, 82, 96)",
-  onTertiary: "rgb(255, 255, 255)",
-  tertiaryContainer: "rgb(255, 217, 227)",
-  onTertiaryContainer: "rgb(55, 11, 30)",
-  error: "rgb(186, 26, 26)",
-  onError: "rgb(255, 255, 255)",
-  errorContainer: "rgb(255, 218, 214)",
-  onErrorContainer: "rgb(65, 0, 2)",
-  background: "rgb(255, 251, 255)",
-  onBackground: "rgb(28, 27, 31)",
-  surface: "rgb(255, 251, 255)",
-  onSurface: "rgb(28, 27, 31)",
-  surfaceVariant: "rgb(231, 224, 236)",
-  onSurfaceVariant: "rgb(73, 69, 79)",
-  outline: "rgb(122, 117, 127)",
-  outlineVariant: "rgb(202, 196, 208)",
+  // Primary - Almost black for clean, modern look
+  primary: "rgb(23, 23, 23)", // hsl(0 0% 9%)
+  onPrimary: "rgb(250, 250, 250)", // hsl(0 0% 98%)
+  primaryContainer: "rgb(245, 245, 245)", // hsl(0 0% 96.1%)
+  onPrimaryContainer: "rgb(10, 10, 10)", // hsl(0 0% 3.9%)
+
+  // Secondary - Light gray tones
+  secondary: "rgb(245, 245, 245)", // hsl(0 0% 96.1%)
+  onSecondary: "rgb(23, 23, 23)", // hsl(0 0% 9%)
+  secondaryContainer: "rgb(229, 229, 229)", // hsl(0 0% 89.8%)
+  onSecondaryContainer: "rgb(10, 10, 10)", // hsl(0 0% 3.9%)
+
+  // Tertiary - Accent gray
+  tertiary: "rgb(245, 245, 245)", // hsl(0 0% 96.1%)
+  onTertiary: "rgb(23, 23, 23)", // hsl(0 0% 9%)
+  tertiaryContainer: "rgb(229, 229, 229)", // hsl(0 0% 89.8%)
+  onTertiaryContainer: "rgb(10, 10, 10)", // hsl(0 0% 3.9%)
+
+  // Error - Red destructive actions
+  error: "rgb(239, 68, 68)", // hsl(0 84.2% 60.2%)
+  onError: "rgb(250, 250, 250)", // hsl(0 0% 98%)
+  errorContainer: "rgb(254, 226, 226)", // lighter red
+  onErrorContainer: "rgb(127, 29, 29)", // darker red
+
+  // Background & Surface - Pure white
+  background: "rgb(255, 255, 255)", // hsl(0 0% 100%)
+  onBackground: "rgb(10, 10, 10)", // hsl(0 0% 3.9%)
+  surface: "rgb(255, 255, 255)", // hsl(0 0% 100%)
+  onSurface: "rgb(10, 10, 10)", // hsl(0 0% 3.9%)
+
+  // Surface Variant - Muted
+  surfaceVariant: "rgb(245, 245, 245)", // hsl(0 0% 96.1%)
+  onSurfaceVariant: "rgb(115, 115, 115)", // hsl(0 0% 45.1%)
+
+  // Outline - Border colors
+  outline: "rgb(229, 229, 229)", // hsl(0 0% 89.8%)
+  outlineVariant: "rgb(212, 212, 212)", // lighter border
   shadow: "rgb(0, 0, 0)",
   scrim: "rgb(0, 0, 0)",
-  inverseSurface: "rgb(49, 48, 51)",
-  inverseOnSurface: "rgb(244, 239, 244)",
-  inversePrimary: "rgb(208, 188, 255)",
+
+  // Inverse colors
+  inverseSurface: "rgb(10, 10, 10)", // hsl(0 0% 3.9%)
+  inverseOnSurface: "rgb(250, 250, 250)", // hsl(0 0% 98%)
+  inversePrimary: "rgb(250, 250, 250)", // hsl(0 0% 98%)
+
+  // Elevation levels
   elevation: {
     level0: "transparent",
-    level1: "rgb(247, 243, 249)",
-    level2: "rgb(243, 237, 246)",
-    level3: "rgb(238, 232, 244)",
-    level4: "rgb(236, 230, 243)",
-    level5: "rgb(233, 227, 241)",
+    level1: "rgb(252, 252, 252)",
+    level2: "rgb(249, 249, 249)",
+    level3: "rgb(247, 247, 247)",
+    level4: "rgb(246, 246, 246)",
+    level5: "rgb(245, 245, 245)",
   },
-  surfaceDisabled: "rgba(28, 27, 31, 0.12)",
-  onSurfaceDisabled: "rgba(28, 27, 31, 0.38)",
-  backdrop: "rgba(50, 47, 56, 0.4)",
+
+  surfaceDisabled: "rgba(10, 10, 10, 0.12)",
+  onSurfaceDisabled: "rgba(10, 10, 10, 0.38)",
+  backdrop: "rgba(10, 10, 10, 0.4)",
 };
 
 const darkColors = {
-  primary: "rgb(208, 188, 255)",
-  onPrimary: "rgb(55, 30, 115)",
-  primaryContainer: "rgb(79, 55, 139)",
-  onPrimaryContainer: "rgb(234, 221, 255)",
-  secondary: "rgb(204, 194, 220)",
-  onSecondary: "rgb(51, 45, 65)",
-  secondaryContainer: "rgb(74, 68, 88)",
-  onSecondaryContainer: "rgb(232, 222, 248)",
-  tertiary: "rgb(239, 184, 200)",
-  onTertiary: "rgb(73, 37, 50)",
-  tertiaryContainer: "rgb(99, 59, 72)",
-  onTertiaryContainer: "rgb(255, 217, 227)",
-  error: "rgb(255, 180, 171)",
-  onError: "rgb(105, 0, 5)",
-  errorContainer: "rgb(147, 0, 10)",
-  onErrorContainer: "rgb(255, 218, 214)",
-  background: "rgb(28, 27, 31)",
-  onBackground: "rgb(230, 225, 229)",
-  surface: "rgb(28, 27, 31)",
-  onSurface: "rgb(230, 225, 229)",
-  surfaceVariant: "rgb(73, 69, 79)",
-  onSurfaceVariant: "rgb(202, 196, 208)",
-  outline: "rgb(147, 143, 153)",
-  outlineVariant: "rgb(73, 69, 79)",
+  // Primary - Almost white for dark mode
+  primary: "rgb(250, 250, 250)", // hsl(0 0% 98%)
+  onPrimary: "rgb(23, 23, 23)", // hsl(0 0% 9%)
+  primaryContainer: "rgb(38, 38, 38)", // hsl(0 0% 14.9%)
+  onPrimaryContainer: "rgb(250, 250, 250)", // hsl(0 0% 98%)
+
+  // Secondary - Dark gray tones
+  secondary: "rgb(38, 38, 38)", // hsl(0 0% 14.9%)
+  onSecondary: "rgb(250, 250, 250)", // hsl(0 0% 98%)
+  secondaryContainer: "rgb(51, 51, 51)", // slightly lighter
+  onSecondaryContainer: "rgb(250, 250, 250)", // hsl(0 0% 98%)
+
+  // Tertiary - Accent dark gray
+  tertiary: "rgb(38, 38, 38)", // hsl(0 0% 14.9%)
+  onTertiary: "rgb(250, 250, 250)", // hsl(0 0% 98%)
+  tertiaryContainer: "rgb(51, 51, 51)", // slightly lighter
+  onTertiaryContainer: "rgb(250, 250, 250)", // hsl(0 0% 98%)
+
+  // Error - Dark red for destructive actions
+  error: "rgb(239, 68, 68)", // keeping light red for visibility
+  onError: "rgb(250, 250, 250)", // hsl(0 0% 98%)
+  errorContainer: "rgb(109, 47, 47)", // hsl(0 62.8% 30.6%)
+  onErrorContainer: "rgb(254, 226, 226)", // light red
+
+  // Background & Surface - Very dark gray
+  background: "rgb(10, 10, 10)", // hsl(0 0% 3.9%)
+  onBackground: "rgb(250, 250, 250)", // hsl(0 0% 98%)
+  surface: "rgb(10, 10, 10)", // hsl(0 0% 3.9%)
+  onSurface: "rgb(250, 250, 250)", // hsl(0 0% 98%)
+
+  // Surface Variant - Muted dark
+  surfaceVariant: "rgb(38, 38, 38)", // hsl(0 0% 14.9%)
+  onSurfaceVariant: "rgb(163, 163, 163)", // hsl(0 0% 63.9%)
+
+  // Outline - Border colors for dark mode
+  outline: "rgb(38, 38, 38)", // hsl(0 0% 14.9%)
+  outlineVariant: "rgb(51, 51, 51)", // slightly lighter border
   shadow: "rgb(0, 0, 0)",
   scrim: "rgb(0, 0, 0)",
-  inverseSurface: "rgb(230, 225, 229)",
-  inverseOnSurface: "rgb(49, 48, 51)",
-  inversePrimary: "rgb(103, 80, 164)",
+
+  // Inverse colors
+  inverseSurface: "rgb(250, 250, 250)", // hsl(0 0% 98%)
+  inverseOnSurface: "rgb(23, 23, 23)", // hsl(0 0% 9%)
+  inversePrimary: "rgb(23, 23, 23)", // hsl(0 0% 9%)
+
+  // Elevation levels - subtle variations for depth
   elevation: {
     level0: "transparent",
-    level1: "rgb(36, 35, 42)",
-    level2: "rgb(41, 39, 48)",
-    level3: "rgb(46, 44, 56)",
-    level4: "rgb(48, 45, 57)",
-    level5: "rgb(51, 48, 60)",
+    level1: "rgb(18, 18, 18)",
+    level2: "rgb(23, 23, 23)",
+    level3: "rgb(28, 28, 28)",
+    level4: "rgb(30, 30, 30)",
+    level5: "rgb(33, 33, 33)",
   },
-  surfaceDisabled: "rgba(230, 225, 229, 0.12)",
-  onSurfaceDisabled: "rgba(230, 225, 229, 0.38)",
-  backdrop: "rgba(50, 47, 56, 0.4)",
+
+  surfaceDisabled: "rgba(250, 250, 250, 0.12)",
+  onSurfaceDisabled: "rgba(250, 250, 250, 0.38)",
+  backdrop: "rgba(10, 10, 10, 0.4)",
 };
 
 export const lightTheme = {
