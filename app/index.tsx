@@ -1,4 +1,4 @@
-import { View, StyleSheet } from "react-native";
+import { View, StyleSheet, ScrollView } from "react-native";
 import {
   Text,
   Button,
@@ -7,56 +7,95 @@ import {
   useTheme as usePaperTheme,
   Surface,
   Divider,
+  Avatar,
 } from "react-native-paper";
 import { useThemeStore } from "../store/themeStore";
+import { useAuthStore } from "../store/authStore";
+import { StatusBar } from "expo-status-bar";
 
 export default function Index() {
   const { isDarkMode, toggleTheme } = useThemeStore();
+  const { user, signOut } = useAuthStore();
   const theme = usePaperTheme();
+
+  const handleSignOut = async () => {
+    await signOut();
+  };
+
+  const getInitials = () => {
+    if (!user) return "U";
+    const firstInitial = user.firstName?.[0] || "";
+    const lastInitial = user.lastName?.[0] || "";
+    return (firstInitial + lastInitial).toUpperCase() || user.username?.[0]?.toUpperCase() || "U";
+  };
 
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      <Surface style={styles.header} elevation={0}>
-        <Text variant="titleLarge" style={styles.headerText}>
-          Soul Bible
-        </Text>
-        <IconButton
-          icon={isDarkMode ? "weather-sunny" : "weather-night"}
-          size={28}
-          onPress={toggleTheme}
-          iconColor={theme.colors.primary}
-        />
-      </Surface>
+      <StatusBar style={theme.dark ? "light" : "dark"} />
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <Surface style={styles.header} elevation={0}>
+          <Text variant="titleLarge" style={styles.headerText}>
+            Soul Bible
+          </Text>
+          <IconButton
+            icon={isDarkMode ? "weather-sunny" : "weather-night"}
+            size={28}
+            onPress={toggleTheme}
+            iconColor={theme.colors.primary}
+          />
+        </Surface>
 
-      <Card style={styles.card} elevation={2}>
-        <Card.Content>
-          <Text variant="headlineMedium" style={styles.title}>
-            Welcome to Soul Bible
-          </Text>
-          <Divider style={styles.divider} />
-          <Text variant="bodyLarge" style={styles.subtitle}>
-            Material Design 3 Theme
-          </Text>
-          <Text variant="bodyMedium" style={styles.description}>
-            React Native Paper with MD3 is now configured with both light and
-            dark mode support. Toggle the theme using the button above!
-          </Text>
-          <View style={styles.featureList}>
-            <Text variant="bodyMedium">✓ Material Design 3</Text>
-            <Text variant="bodyMedium">✓ Light & Dark Mode</Text>
-            <Text variant="bodyMedium">✓ Custom Color Palette</Text>
-            <Text variant="bodyMedium">✓ System Theme Detection</Text>
-          </View>
-        </Card.Content>
-        <Card.Actions>
-          <Button mode="outlined" onPress={() => console.log("Learn More")}>
-            Learn More
-          </Button>
-          <Button mode="contained" onPress={() => console.log("Get Started")}>
-            Get Started
-          </Button>
-        </Card.Actions>
-      </Card>
+        <Card style={styles.userCard} elevation={2}>
+          <Card.Content style={styles.userCardContent}>
+            <Avatar.Text
+              size={64}
+              label={getInitials()}
+              style={{ backgroundColor: theme.colors.primaryContainer }}
+              color={theme.colors.onPrimaryContainer}
+            />
+            <View style={styles.userInfo}>
+              <Text variant="headlineSmall" style={styles.userName}>
+                {user?.firstName && user?.lastName
+                  ? `${user.firstName} ${user.lastName}`
+                  : user?.username || "User"}
+              </Text>
+              <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>
+                {user?.email || ""}
+              </Text>
+            </View>
+          </Card.Content>
+        </Card>
+
+        <Card style={styles.card} elevation={2}>
+          <Card.Content>
+            <Text variant="headlineMedium" style={styles.title}>
+              Welcome Back!
+            </Text>
+            <Divider style={styles.divider} />
+            <Text variant="bodyLarge" style={styles.subtitle}>
+              Your Spiritual Journey
+            </Text>
+            <Text variant="bodyMedium" style={styles.description}>
+              Continue your spiritual journey with Soul Bible. Explore sacred texts,
+              reflect on daily messages, and grow in your faith.
+            </Text>
+            <View style={styles.featureList}>
+              <Text variant="bodyMedium">📖 Sacred Texts</Text>
+              <Text variant="bodyMedium">🙏 Daily Reflections</Text>
+              <Text variant="bodyMedium">✨ Personal Journey</Text>
+              <Text variant="bodyMedium">🌙 Light & Dark Mode</Text>
+            </View>
+          </Card.Content>
+          <Card.Actions>
+            <Button mode="outlined" onPress={handleSignOut}>
+              Sign Out
+            </Button>
+            <Button mode="contained" onPress={() => console.log("Explore")}>
+              Explore
+            </Button>
+          </Card.Actions>
+        </Card>
+      </ScrollView>
     </View>
   );
 }
@@ -77,10 +116,29 @@ const styles = StyleSheet.create({
   headerText: {
     fontWeight: "bold",
   },
+  userCard: {
+    width: "100%",
+    maxWidth: 600,
+    alignSelf: "center",
+    marginBottom: 16,
+  },
+  userCardContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 16,
+  },
+  userInfo: {
+    flex: 1,
+    gap: 4,
+  },
+  userName: {
+    fontWeight: "bold",
+  },
   card: {
     width: "100%",
     maxWidth: 600,
     alignSelf: "center",
+    marginBottom: 16,
   },
   title: {
     marginBottom: 16,
