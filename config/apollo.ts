@@ -16,9 +16,24 @@ const httpLink = createHttpLink({
   uri: GRAPHQL_ENDPOINT,
 });
 
-// Auth link to add Bearer token to headers
-const authLink = setContext(async (_, { headers }) => {
+// Auth link to add authentication headers
+const authLink = setContext(async (operation, { headers }) => {
   try {
+    // Public mutations that use API key authentication
+    const publicOperations = ['SignIn', 'SignUp', 'ForgotPassword', 'ResetPassword'];
+
+    // Check if this is a public operation (use API key)
+    if (publicOperations.includes(operation.operationName || '')) {
+      return {
+        headers: {
+          ...headers,
+          'x-api-key': 'da2-ykymx245tbd7lcj6ucmvrj7lim',
+          'Content-Type': 'application/json',
+        },
+      };
+    }
+
+    // For authenticated requests, add Bearer token
     const accessToken = await SecureStore.getItemAsync('soul-bible-access-token');
 
     return {
@@ -29,7 +44,7 @@ const authLink = setContext(async (_, { headers }) => {
       },
     };
   } catch (error) {
-    console.error('Error getting access token:', error);
+    console.error('Error configuring auth:', error);
     return { headers };
   }
 });
@@ -62,7 +77,19 @@ const errorLink = onError((errorContext: any) => {
 // Create Apollo Client instance
 export const apolloClient = new ApolloClient({
   link: from([errorLink, authLink, httpLink]),
-  cache: new InMemoryCache(),
+  cache: new InMemoryCache({
+    typePolicies: {
+      User: {
+        keyFields: ['id'],
+      },
+      AuthResponse: {
+        keyFields: false, // Don't normalize this type
+      },
+      SignInResponse: {
+        keyFields: false, // Don't normalize this type
+      },
+    },
+  }),
   defaultOptions: {
     watchQuery: {
       fetchPolicy: 'cache-and-network',
