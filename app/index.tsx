@@ -3,23 +3,16 @@ import {
   Text,
   Button,
   Card,
-  IconButton,
   useTheme as usePaperTheme,
-  Surface,
   Divider,
-  Avatar,
   ActivityIndicator,
 } from "react-native-paper";
-import { useThemeStore } from "../store/themeStore";
-import { useAuthStore } from "../store/authStore";
 import { StatusBar } from "expo-status-bar";
 import { useState, useEffect } from "react";
 import { getRandomBibleVerse, BibleVerse } from "../services/bibleService";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Index() {
-  const { isDarkMode, toggleTheme } = useThemeStore();
-  const { user, signOut } = useAuthStore();
   const theme = usePaperTheme();
 
   // Bible verse state
@@ -38,51 +31,12 @@ export default function Index() {
     fetchVerse();
   }, []);
 
-  const handleSignOut = async () => {
-    await signOut();
-  };
-
-  const getInitials = () => {
-    if (!user) return "U";
-    const firstInitial = user.firstName?.[0] || "";
-    const lastInitial = user.lastName?.[0] || "";
-    return (
-      (firstInitial + lastInitial).toUpperCase() ||
-      user.username?.[0]?.toUpperCase() ||
-      "U"
-    );
-  };
-
   return (
     <SafeAreaView
       style={[styles.container, { backgroundColor: theme.colors.background }]}
     >
       <StatusBar style={theme.dark ? "light" : "dark"} />
       <ScrollView showsVerticalScrollIndicator={false}>
-        <Card style={styles.userCard} elevation={2}>
-          <Card.Content style={styles.userCardContent}>
-            <Avatar.Text
-              size={64}
-              label={getInitials()}
-              style={{ backgroundColor: theme.colors.primaryContainer }}
-              color={theme.colors.onPrimaryContainer}
-            />
-            <View style={styles.userInfo}>
-              <Text variant="headlineSmall" style={styles.userName}>
-                {user?.firstName && user?.lastName
-                  ? `${user.firstName} ${user.lastName}`
-                  : user?.username || "User"}
-              </Text>
-              <Text
-                variant="bodyMedium"
-                style={{ color: theme.colors.onSurfaceVariant }}
-              >
-                {user?.email || ""}
-              </Text>
-            </View>
-          </Card.Content>
-        </Card>
-
         {/* Coming Soon Card with Bible Verse */}
         <Card style={styles.comingSoonCard} elevation={3}>
           <Card.Content>
@@ -128,14 +82,14 @@ export default function Index() {
         <Card style={styles.card} elevation={2}>
           <Card.Content>
             <Text variant="headlineMedium" style={styles.title}>
-              Welcome Back!
+              Welcome!
             </Text>
             <Divider style={styles.divider} />
             <Text variant="bodyLarge" style={styles.subtitle}>
               Your Spiritual Journey
             </Text>
             <Text variant="bodyMedium" style={styles.description}>
-              Continue your spiritual journey with Soul Bible. Explore sacred
+              Begin your spiritual journey with Soul Bible. Explore sacred
               texts, reflect on daily messages, and grow in your faith.
             </Text>
             <View style={styles.featureList}>
@@ -146,9 +100,6 @@ export default function Index() {
             </View>
           </Card.Content>
           <Card.Actions>
-            <Button mode="outlined" onPress={handleSignOut}>
-              Sign Out
-            </Button>
             <Button mode="contained" onPress={() => console.log("Explore")}>
               Explore
             </Button>
@@ -164,35 +115,6 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 24,
     paddingHorizontal: 8,
-  },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: 8,
-    paddingVertical: 12,
-    marginBottom: 24,
-  },
-  headerText: {
-    fontWeight: "bold",
-  },
-  userCard: {
-    width: "100%",
-    maxWidth: 600,
-    alignSelf: "center",
-    marginBottom: 16,
-  },
-  userCardContent: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 16,
-  },
-  userInfo: {
-    flex: 1,
-    gap: 4,
-  },
-  userName: {
-    fontWeight: "bold",
   },
   card: {
     width: "100%",
