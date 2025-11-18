@@ -8,15 +8,35 @@ import {
   Surface,
   Divider,
   Avatar,
+  ActivityIndicator,
 } from "react-native-paper";
 import { useThemeStore } from "../store/themeStore";
 import { useAuthStore } from "../store/authStore";
 import { StatusBar } from "expo-status-bar";
+import { useState, useEffect } from "react";
+import { getRandomBibleVerse, BibleVerse } from "../services/bibleService";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Index() {
   const { isDarkMode, toggleTheme } = useThemeStore();
   const { user, signOut } = useAuthStore();
   const theme = usePaperTheme();
+
+  // Bible verse state
+  const [verse, setVerse] = useState<BibleVerse | null>(null);
+  const [isLoadingVerse, setIsLoadingVerse] = useState(true);
+
+  // Fetch random Bible verse on mount
+  useEffect(() => {
+    const fetchVerse = async () => {
+      setIsLoadingVerse(true);
+      const bibleVerse = await getRandomBibleVerse();
+      setVerse(bibleVerse);
+      setIsLoadingVerse(false);
+    };
+
+    fetchVerse();
+  }, []);
 
   const handleSignOut = async () => {
     await signOut();
@@ -26,25 +46,19 @@ export default function Index() {
     if (!user) return "U";
     const firstInitial = user.firstName?.[0] || "";
     const lastInitial = user.lastName?.[0] || "";
-    return (firstInitial + lastInitial).toUpperCase() || user.username?.[0]?.toUpperCase() || "U";
+    return (
+      (firstInitial + lastInitial).toUpperCase() ||
+      user.username?.[0]?.toUpperCase() ||
+      "U"
+    );
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: theme.colors.background }]}
+    >
       <StatusBar style={theme.dark ? "light" : "dark"} />
       <ScrollView showsVerticalScrollIndicator={false}>
-        <Surface style={styles.header} elevation={0}>
-          <Text variant="titleLarge" style={styles.headerText}>
-            Soul Bible
-          </Text>
-          <IconButton
-            icon={isDarkMode ? "weather-sunny" : "weather-night"}
-            size={28}
-            onPress={toggleTheme}
-            iconColor={theme.colors.primary}
-          />
-        </Surface>
-
         <Card style={styles.userCard} elevation={2}>
           <Card.Content style={styles.userCardContent}>
             <Avatar.Text
@@ -59,10 +73,55 @@ export default function Index() {
                   ? `${user.firstName} ${user.lastName}`
                   : user?.username || "User"}
               </Text>
-              <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>
+              <Text
+                variant="bodyMedium"
+                style={{ color: theme.colors.onSurfaceVariant }}
+              >
                 {user?.email || ""}
               </Text>
             </View>
+          </Card.Content>
+        </Card>
+
+        {/* Coming Soon Card with Bible Verse */}
+        <Card style={styles.comingSoonCard} elevation={3}>
+          <Card.Content>
+            <Text variant="headlineMedium" style={styles.comingSoonTitle}>
+              ✨ Coming Soon
+            </Text>
+            <Divider style={styles.divider} />
+            {isLoadingVerse ? (
+              <View style={styles.loadingContainer}>
+                <ActivityIndicator size="small" color={theme.colors.primary} />
+                <Text
+                  variant="bodyMedium"
+                  style={[
+                    styles.loadingText,
+                    { color: theme.colors.onSurfaceVariant },
+                  ]}
+                >
+                  Loading inspiration...
+                </Text>
+              </View>
+            ) : verse ? (
+              <View style={styles.verseContainer}>
+                <Text
+                  variant="bodyLarge"
+                  style={[styles.verseText, { color: theme.colors.onSurface }]}
+                >
+                  &ldquo;{verse.text}&rdquo;
+                </Text>
+                <Text
+                  variant="bodyMedium"
+                  style={[
+                    styles.verseReference,
+                    { color: theme.colors.primary },
+                  ]}
+                >
+                  — {verse.reference} ({verse.translation})
+                </Text>
+              </View>
+            ) : null}
           </Card.Content>
         </Card>
 
@@ -76,8 +135,8 @@ export default function Index() {
               Your Spiritual Journey
             </Text>
             <Text variant="bodyMedium" style={styles.description}>
-              Continue your spiritual journey with Soul Bible. Explore sacred texts,
-              reflect on daily messages, and grow in your faith.
+              Continue your spiritual journey with Soul Bible. Explore sacred
+              texts, reflect on daily messages, and grow in your faith.
             </Text>
             <View style={styles.featureList}>
               <Text variant="bodyMedium">📖 Sacred Texts</Text>
@@ -96,14 +155,15 @@ export default function Index() {
           </Card.Actions>
         </Card>
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
+    paddingVertical: 24,
+    paddingHorizontal: 8,
   },
   header: {
     flexDirection: "row",
@@ -158,5 +218,40 @@ const styles = StyleSheet.create({
   featureList: {
     gap: 8,
     marginTop: 8,
+  },
+  comingSoonCard: {
+    width: "100%",
+    maxWidth: 600,
+    alignSelf: "center",
+    marginBottom: 16,
+  },
+  comingSoonTitle: {
+    fontWeight: "bold",
+    textAlign: "center",
+    marginBottom: 8,
+  },
+  loadingContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 12,
+    paddingVertical: 16,
+  },
+  loadingText: {
+    fontStyle: "italic",
+  },
+  verseContainer: {
+    gap: 12,
+    paddingVertical: 8,
+  },
+  verseText: {
+    fontStyle: "italic",
+    lineHeight: 24,
+    textAlign: "center",
+  },
+  verseReference: {
+    fontWeight: "600",
+    textAlign: "right",
+    marginTop: 4,
   },
 });
