@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
-import { Text, TextInput, Button, Checkbox, Surface, useTheme, Snackbar } from 'react-native-paper';
+import { Text, TextInput, Button, Surface, useTheme, Snackbar } from 'react-native-paper';
 import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useAuthStore } from '@/store/authStore';
@@ -11,7 +11,6 @@ export default function SignInScreen() {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [rememberMe, setRememberMe] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
@@ -47,7 +46,6 @@ export default function SignInScreen() {
     const result = await signIn({
       username: email.trim(),
       password,
-      rememberMe,
     });
 
     if (result.success) {
@@ -126,21 +124,6 @@ export default function SignInScreen() {
             ) : null}
 
             <View style={styles.options}>
-              <View style={styles.rememberMe}>
-                <Checkbox
-                  status={rememberMe ? 'checked' : 'unchecked'}
-                  onPress={() => setRememberMe(!rememberMe)}
-                  disabled={isLoading}
-                />
-                <Text
-                  variant="bodyMedium"
-                  onPress={() => setRememberMe(!rememberMe)}
-                  style={{ color: theme.colors.onSurface }}
-                >
-                  Remember me
-                </Text>
-              </View>
-
               <Button
                 mode="text"
                 onPress={() => router.push('/(auth)/forgot-password')}
@@ -223,14 +206,7 @@ const styles = StyleSheet.create({
     marginLeft: 12,
   },
   options: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  rememberMe: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+    alignItems: 'flex-end',
   },
   signInButton: {
     marginTop: 8,

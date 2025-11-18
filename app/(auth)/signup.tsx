@@ -79,15 +79,9 @@ export default function SignUpScreen() {
       lastName: formData.lastName.trim(),
     });
 
-    if (result.success && result.username) {
-      // Navigate to verification screen with both email and username
-      router.push({
-        pathname: '/(auth)/verify-email',
-        params: {
-          email: formData.email.trim(),
-          username: result.username,
-        },
-      });
+    if (result.success) {
+      // User is auto-authenticated after signup, navigate to home
+      router.replace('/');
     }
   };
 

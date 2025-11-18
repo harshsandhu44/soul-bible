@@ -38,13 +38,6 @@ export default function AuthLayout() {
         }}
       />
       <Stack.Screen
-        name="verify-email"
-        options={{
-          title: 'Verify Email',
-          headerBackTitle: 'Back',
-        }}
-      />
-      <Stack.Screen
         name="forgot-password"
         options={{
           title: 'Forgot Password',

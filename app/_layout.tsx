@@ -1,21 +1,19 @@
 import { Stack, useRouter, useSegments } from "expo-router";
 import { PaperProvider, ActivityIndicator } from "react-native-paper";
-import { useEffect } from "react";
-import { useColorScheme, View, StyleSheet } from "react-native";
+import { useEffect, useRef } from "react";
+import { useColorScheme, View, StyleSheet, AppState } from "react-native";
 import { lightTheme, darkTheme } from "../constants/theme";
 import { useThemeStore } from "../store/themeStore";
 import { useAuthStore } from "../store/authStore";
-import { configureAmplify } from "../config/amplify";
-
-// Configure Amplify on app load
-configureAmplify();
+import { isTokenExpiring } from "../services/authService";
 
 export default function RootLayout() {
   const systemColorScheme = useColorScheme();
   const { isDarkMode, setIsDarkMode } = useThemeStore();
-  const { isAuthenticated, isInitializing, checkAuthStatus } = useAuthStore();
+  const { isAuthenticated, isInitializing, checkAuthStatus, refreshToken } = useAuthStore();
   const segments = useSegments();
   const router = useRouter();
+  const tokenRefreshInterval = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Sync with system theme on mount and when system theme changes
   useEffect(() => {
@@ -28,6 +26,59 @@ export default function RootLayout() {
   useEffect(() => {
     checkAuthStatus();
   }, []);
+
+  // Set up automatic token refresh
+  useEffect(() => {
+    if (!isAuthenticated) {
+      // Clear interval if user is not authenticated
+      if (tokenRefreshInterval.current) {
+        clearInterval(tokenRefreshInterval.current);
+        tokenRefreshInterval.current = null;
+      }
+      return;
+    }
+
+    // Check token expiration every minute
+    const checkAndRefresh = async () => {
+      const isExpiring = await isTokenExpiring();
+      if (isExpiring) {
+        console.log('Token expiring, refreshing...');
+        await refreshToken();
+      }
+    };
+
+    // Run immediately
+    checkAndRefresh();
+
+    // Set up interval to check every minute
+    tokenRefreshInterval.current = setInterval(checkAndRefresh, 60 * 1000);
+
+    // Cleanup on unmount or when auth status changes
+    return () => {
+      if (tokenRefreshInterval.current) {
+        clearInterval(tokenRefreshInterval.current);
+        tokenRefreshInterval.current = null;
+      }
+    };
+  }, [isAuthenticated, refreshToken]);
+
+  // Handle app state changes (foreground/background)
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', async (nextAppState) => {
+      if (nextAppState === 'active' && isAuthenticated) {
+        // App came to foreground - check if token needs refresh
+        const isExpiring = await isTokenExpiring();
+        if (isExpiring) {
+          console.log('App foregrounded, token expiring - refreshing...');
+          await refreshToken();
+        }
+      }
+    });
+
+    return () => {
+      subscription.remove();
+    };
+  }, [isAuthenticated, refreshToken]);
 
   // Protect routes based on auth status
   useEffect(() => {
