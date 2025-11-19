@@ -15,14 +15,17 @@ export default function RootLayout() {
     isLoading,
     loadPreferences,
   } = useUserPreferencesStore();
-  const { loadReadingData } = useBibleReadingStore();
+  const { loadReadingData, isLoading: isReadingDataLoading } =
+    useBibleReadingStore();
   const router = useRouter();
   const segments = useSegments();
 
   // Load user preferences on mount
   useEffect(() => {
-    loadPreferences();
-    loadReadingData();
+    const initializeStores = async () => {
+      await Promise.all([loadPreferences(), loadReadingData()]);
+    };
+    initializeStores();
   }, [loadPreferences, loadReadingData]);
 
   // Sync with system theme on mount and when system theme changes
@@ -34,7 +37,8 @@ export default function RootLayout() {
 
   // Handle onboarding navigation
   useEffect(() => {
-    if (isLoading) return;
+    // Wait for both stores to finish loading
+    if (isLoading || isReadingDataLoading) return;
 
     const inOnboarding = segments[0] === "onboarding";
 
@@ -45,7 +49,13 @@ export default function RootLayout() {
       // User has completed onboarding but is in onboarding flow, redirect to home
       router.replace("/");
     }
-  }, [hasCompletedOnboarding, isLoading, segments, router]);
+  }, [
+    hasCompletedOnboarding,
+    isLoading,
+    isReadingDataLoading,
+    segments,
+    router,
+  ]);
 
   const theme = isDarkMode ? darkTheme : lightTheme;
 
