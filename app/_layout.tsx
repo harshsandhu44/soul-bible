@@ -5,6 +5,7 @@ import { useColorScheme } from "react-native";
 import { lightTheme, darkTheme } from "../constants/theme";
 import { useThemeStore } from "../store/themeStore";
 import { useUserPreferencesStore } from "../store/userPreferencesStore";
+import { useBibleReadingStore } from "../store/bibleReadingStore";
 
 export default function RootLayout() {
   const systemColorScheme = useColorScheme();
@@ -14,13 +15,15 @@ export default function RootLayout() {
     isLoading,
     loadPreferences,
   } = useUserPreferencesStore();
+  const { loadReadingData } = useBibleReadingStore();
   const router = useRouter();
   const segments = useSegments();
 
   // Load user preferences on mount
   useEffect(() => {
     loadPreferences();
-  }, [loadPreferences]);
+    loadReadingData();
+  }, [loadPreferences, loadReadingData]);
 
   // Sync with system theme on mount and when system theme changes
   useEffect(() => {
@@ -59,7 +62,12 @@ export default function RootLayout() {
           },
         }}
       >
-        <Stack.Screen name="index" options={{ title: "Soul Bible" }} />
+        <Stack.Screen
+          name="(tabs)"
+          options={{
+            headerShown: false,
+          }}
+        />
         <Stack.Screen
           name="onboarding"
           options={{
