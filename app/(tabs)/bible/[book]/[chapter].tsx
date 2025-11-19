@@ -54,27 +54,30 @@ export default function ChapterReaderScreen() {
     }
   }, [bookData, chapter, navigation]);
 
+  const fetchChapter = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const data = await getChapter(book, chapterNum, preferredTranslation);
+      setChapterData(data);
+
+      // Add to history and update last position
+      await addToHistory(book, chapterNum);
+      await setLastPosition(book, chapterNum);
+    } catch (err) {
+      console.error("Error fetching chapter:", err);
+      setError(
+        "Failed to load chapter. Please check your connection and try again."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchChapter = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const data = await getChapter(book, chapterNum, preferredTranslation);
-        setChapterData(data);
-
-        // Add to history and update last position
-        await addToHistory(book, chapterNum);
-        await setLastPosition(book, chapterNum);
-      } catch (err) {
-        console.error("Error fetching chapter:", err);
-        setError("Failed to load chapter. Please try again.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchChapter();
-  }, [book, chapterNum, preferredTranslation, addToHistory, setLastPosition]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [book, chapterNum, preferredTranslation]);
 
   const handleBookmarkToggle = async () => {
     if (isBookmarked) {
@@ -136,6 +139,16 @@ export default function ChapterReaderScreen() {
           >
             {error || "Chapter not found"}
           </Text>
+          {error && (
+            <Button
+              mode="contained"
+              onPress={fetchChapter}
+              style={styles.retryButton}
+              icon="refresh"
+            >
+              Retry
+            </Button>
+          )}
         </View>
       </SafeAreaView>
     );
@@ -240,6 +253,10 @@ const styles = StyleSheet.create({
   },
   errorText: {
     textAlign: "center",
+    marginBottom: 16,
+  },
+  retryButton: {
+    marginTop: 8,
   },
   header: {
     marginBottom: 24,
