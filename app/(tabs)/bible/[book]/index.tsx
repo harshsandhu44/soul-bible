@@ -5,6 +5,7 @@ import {
   useTheme as usePaperTheme,
   IconButton,
   Chip,
+  ActivityIndicator,
 } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, useLocalSearchParams } from "expo-router";
@@ -17,7 +18,8 @@ export default function ChapterSelectionScreen() {
   const theme = usePaperTheme();
   const router = useRouter();
   const { book } = useLocalSearchParams<{ book: string }>();
-  const { hasReadChapter, isChapterBookmarked } = useBibleReadingStore();
+  const { hasReadChapter, isChapterBookmarked, isLoading } =
+    useBibleReadingStore();
   const navigation = useNavigation();
 
   const books = getBibleBooks();
@@ -44,6 +46,7 @@ export default function ChapterSelectionScreen() {
   const chapters = Array.from({ length: bookData.chapters }, (_, i) => i + 1);
 
   const handleChapterPress = (chapter: number) => {
+    console.log("Navigating to:", `/bible/${book}/${chapter}`);
     router.push(`/bible/${book}/${chapter}`);
   };
 
@@ -95,33 +98,50 @@ export default function ChapterSelectionScreen() {
     <SafeAreaView
       style={[styles.container, { backgroundColor: theme.colors.background }]}
     >
-      <View style={styles.header}>
-        <Text
-          variant="headlineSmall"
-          style={[styles.bookTitle, { color: theme.colors.primary }]}
-        >
-          {bookData.name}
-        </Text>
-        <Chip
-          icon="book-open-variant"
-          style={[
-            styles.chapterCountChip,
-            { backgroundColor: theme.colors.primaryContainer },
-          ]}
-          textStyle={{ color: theme.colors.onPrimaryContainer }}
-        >
-          {bookData.chapters} Chapters
-        </Chip>
-      </View>
+      {isLoading ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" />
+          <Text
+            variant="bodyMedium"
+            style={[
+              styles.loadingText,
+              { color: theme.colors.onSurfaceVariant },
+            ]}
+          >
+            Loading reading data...
+          </Text>
+        </View>
+      ) : (
+        <>
+          <View style={styles.header}>
+            <Text
+              variant="headlineSmall"
+              style={[styles.bookTitle, { color: theme.colors.primary }]}
+            >
+              {bookData.name}
+            </Text>
+            <Chip
+              icon="book-open-variant"
+              style={[
+                styles.chapterCountChip,
+                { backgroundColor: theme.colors.primaryContainer },
+              ]}
+              textStyle={{ color: theme.colors.onPrimaryContainer }}
+            >
+              {bookData.chapters} Chapters
+            </Chip>
+          </View>
 
-      <FlatList
-        data={chapters}
-        renderItem={renderChapterItem}
-        keyExtractor={(item) => item.toString()}
-        numColumns={4}
-        contentContainerStyle={styles.chaptersList}
-        showsVerticalScrollIndicator={false}
-      />
+          <FlatList
+            data={chapters}
+            renderItem={renderChapterItem}
+            keyExtractor={(item) => item.toString()}
+            numColumns={4}
+            contentContainerStyle={styles.chaptersList}
+            showsVerticalScrollIndicator={false}
+          />
+        </>
+      )}
     </SafeAreaView>
   );
 }
@@ -165,5 +185,14 @@ const styles = StyleSheet.create({
     top: -8,
     right: -8,
     margin: 0,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 24,
+  },
+  loadingText: {
+    marginTop: 16,
   },
 });
