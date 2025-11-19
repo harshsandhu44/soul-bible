@@ -1,4 +1,4 @@
-import { Stack, useRouter, useSegments } from "expo-router";
+import { Stack, usePathname, useRouter, useSegments } from "expo-router";
 import { PaperProvider } from "react-native-paper";
 import { useEffect } from "react";
 import { useColorScheme } from "react-native";
@@ -10,15 +10,15 @@ import { useBibleReadingStore } from "../store/bibleReadingStore";
 export default function RootLayout() {
   const systemColorScheme = useColorScheme();
   const { isDarkMode, setIsDarkMode } = useThemeStore();
-  const {
-    hasCompletedOnboarding,
-    isLoading,
-    loadPreferences,
-  } = useUserPreferencesStore();
+  const { hasCompletedOnboarding, isLoading, loadPreferences } =
+    useUserPreferencesStore();
   const { loadReadingData, isLoading: isReadingDataLoading } =
     useBibleReadingStore();
   const router = useRouter();
+  const path = usePathname();
   const segments = useSegments();
+
+  console.log("[PATH]", path);
 
   // Load user preferences on mount
   useEffect(() => {

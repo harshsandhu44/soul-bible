@@ -1,4 +1,4 @@
-import { View, StyleSheet, FlatList } from "react-native";
+import { View, StyleSheet, ScrollView } from "react-native";
 import {
   Text,
   Card,
@@ -45,53 +45,14 @@ export default function ChapterSelectionScreen() {
 
   const chapters = Array.from({ length: bookData.chapters }, (_, i) => i + 1);
 
+  console.log("Book:", book);
+  console.log("Book Data:", bookData);
+  console.log("Chapters array:", chapters);
+  console.log("Is Loading:", isLoading);
+
   const handleChapterPress = (chapter: number) => {
     console.log("Navigating to:", `/bible/${book}/${chapter}`);
     router.push(`/bible/${book}/${chapter}`);
-  };
-
-  const renderChapterItem = ({ item }: { item: number }) => {
-    const isRead = hasReadChapter(book, item);
-    const isBookmarked = isChapterBookmarked(book, item);
-
-    return (
-      <Card
-        style={[
-          styles.chapterCard,
-          {
-            backgroundColor: isRead
-              ? theme.colors.secondaryContainer
-              : theme.colors.surfaceVariant,
-          },
-        ]}
-        onPress={() => handleChapterPress(item)}
-        mode="elevated"
-      >
-        <Card.Content style={styles.chapterCardContent}>
-          <Text
-            variant="titleLarge"
-            style={[
-              styles.chapterNumber,
-              {
-                color: isRead
-                  ? theme.colors.onSecondaryContainer
-                  : theme.colors.onSurface,
-              },
-            ]}
-          >
-            {item}
-          </Text>
-          {isBookmarked && (
-            <IconButton
-              icon="bookmark"
-              size={20}
-              iconColor={theme.colors.primary}
-              style={styles.bookmarkIcon}
-            />
-          )}
-        </Card.Content>
-      </Card>
-    );
   };
 
   return (
@@ -132,14 +93,58 @@ export default function ChapterSelectionScreen() {
             </Chip>
           </View>
 
-          <FlatList
-            data={chapters}
-            renderItem={renderChapterItem}
-            keyExtractor={(item) => item.toString()}
-            numColumns={4}
-            contentContainerStyle={styles.chaptersList}
+          <ScrollView
+            style={styles.scrollView}
+            contentContainerStyle={styles.scrollContent}
             showsVerticalScrollIndicator={false}
-          />
+          >
+            <View style={styles.chaptersGrid}>
+              {chapters.map((chapter) => {
+                const isRead = hasReadChapter(book, chapter);
+                const isBookmarked = isChapterBookmarked(book, chapter);
+
+                return (
+                  <Card
+                    key={chapter}
+                    style={[
+                      styles.chapterCard,
+                      {
+                        backgroundColor: isRead
+                          ? theme.colors.secondaryContainer
+                          : theme.colors.surfaceVariant,
+                      },
+                    ]}
+                    onPress={() => handleChapterPress(chapter)}
+                    mode="elevated"
+                  >
+                    <Card.Content style={styles.chapterCardContent}>
+                      <Text
+                        variant="titleLarge"
+                        style={[
+                          styles.chapterNumber,
+                          {
+                            color: isRead
+                              ? theme.colors.onSecondaryContainer
+                              : theme.colors.onSurface,
+                          },
+                        ]}
+                      >
+                        {chapter}
+                      </Text>
+                      {isBookmarked && (
+                        <IconButton
+                          icon="bookmark"
+                          size={20}
+                          iconColor={theme.colors.primary}
+                          style={styles.bookmarkIcon}
+                        />
+                      )}
+                    </Card.Content>
+                  </Card>
+                );
+              })}
+            </View>
+          </ScrollView>
         </>
       )}
     </SafeAreaView>
@@ -162,14 +167,22 @@ const styles = StyleSheet.create({
   chapterCountChip: {
     marginBottom: 8,
   },
-  chaptersList: {
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
     padding: 12,
   },
+  chaptersGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "flex-start",
+  },
   chapterCard: {
-    flex: 1,
-    margin: 4,
+    width: "23%",
+    margin: "1%",
+    minHeight: 80,
     aspectRatio: 1,
-    maxWidth: "23%",
   },
   chapterCardContent: {
     flex: 1,

@@ -1,4 +1,4 @@
-import { View, StyleSheet, ScrollView, FlatList } from "react-native";
+import { View, StyleSheet, ScrollView } from "react-native";
 import {
   Text,
   Card,
@@ -73,7 +73,10 @@ export default function BibleBooksScreen() {
           </Text>
           <Text
             variant="bodyMedium"
-            style={[styles.sectionSubtitle, { color: theme.colors.onSurfaceVariant }]}
+            style={[
+              styles.sectionSubtitle,
+              { color: theme.colors.onSurfaceVariant },
+            ]}
           >
             {oldTestament.length} books
           </Text>
@@ -95,7 +98,6 @@ export default function BibleBooksScreen() {
                       styles.chapterChip,
                       { backgroundColor: theme.colors.secondaryContainer },
                     ]}
-                    textStyle={{ color: theme.colors.onSecondaryContainer }}
                   >
                     {book.chapters} {book.chapters === 1 ? "ch" : "chs"}
                   </Chip>
@@ -116,7 +118,10 @@ export default function BibleBooksScreen() {
           </Text>
           <Text
             variant="bodyMedium"
-            style={[styles.sectionSubtitle, { color: theme.colors.onSurfaceVariant }]}
+            style={[
+              styles.sectionSubtitle,
+              { color: theme.colors.onSurfaceVariant },
+            ]}
           >
             {newTestament.length} books
           </Text>
@@ -197,6 +202,6 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   chapterChip: {
-    height: 28,
+    height: 34,
   },
 });
