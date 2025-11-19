@@ -199,9 +199,11 @@ export async function getChapter(
   translation: string = 'kjv'
 ): Promise<BibleChapter> {
   try {
+    // Construct the reference (e.g., "john 3" or "1samuel 5")
+    const reference = `${book} ${chapter}`;
     const url = `https://bible-api.com/${encodeURIComponent(
-      book
-    )}%20${chapter}?translation=${translation}`;
+      reference
+    )}?translation=${translation}`;
 
     const response = await fetch(url, {
       method: 'GET',
