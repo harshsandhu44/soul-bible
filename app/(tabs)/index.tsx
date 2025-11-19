@@ -46,9 +46,13 @@ export default function Index() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleContinueReading = () => {
+  const handleStartReading = () => {
     if (lastBook && lastChapter) {
+      // Continue from last position
       router.push(`/bible/${lastBook}/${lastChapter}`);
+    } else {
+      // Start fresh - go to book selection
+      router.push("/bible");
     }
   };
 
@@ -57,27 +61,60 @@ export default function Index() {
       style={[styles.container, { backgroundColor: theme.colors.background }]}
     >
       <ScrollView showsVerticalScrollIndicator={false}>
-        {lastBook && lastChapter && lastBookData && (
-          <Card style={styles.card} elevation={2}>
-            <Card.Content>
+        <Card style={styles.readingCard} elevation={3}>
+          <Card.Content style={styles.readingCardContent}>
+            <View style={styles.readingCardTextContainer}>
               <Text
-                variant="titleMedium"
-                style={[styles.cardTitle, { color: theme.colors.primary }]}
+                variant="headlineSmall"
+                style={[styles.readingTitle, { color: theme.colors.primary }]}
               >
-                Continue Reading
+                {lastBook && lastChapter && lastBookData
+                  ? "Continue Reading"
+                  : "Start Reading"}
               </Text>
-              <Divider style={styles.divider} />
-              <Text variant="bodyLarge" style={styles.continueText}>
-                {lastBookData.name} Chapter {lastChapter}
-              </Text>
-            </Card.Content>
-            <Card.Actions>
-              <Button mode="contained" onPress={handleContinueReading}>
-                Resume
-              </Button>
-            </Card.Actions>
-          </Card>
-        )}
+              {lastBook && lastChapter && lastBookData && (
+                <Text
+                  variant="bodyLarge"
+                  style={[
+                    styles.readingSubtitle,
+                    { color: theme.colors.onSurfaceVariant },
+                  ]}
+                >
+                  {lastBookData.name} Chapter {lastChapter}
+                </Text>
+              )}
+              {!lastBook && (
+                <Text
+                  variant="bodyMedium"
+                  style={[
+                    styles.readingSubtitle,
+                    { color: theme.colors.onSurfaceVariant },
+                  ]}
+                >
+                  Begin your journey through the Bible
+                </Text>
+              )}
+            </View>
+            <Button
+              mode="contained"
+              icon={lastBook ? "book-open-page-variant" : "book"}
+              onPress={handleStartReading}
+              style={styles.readingButton}
+              contentStyle={styles.readingButtonContent}
+            >
+              {lastBook ? "Resume" : "Start"}
+            </Button>
+          </Card.Content>
+        </Card>
+
+        <Divider style={styles.sectionDivider} />
+
+        <Text
+          variant="titleMedium"
+          style={[styles.sectionTitle, { color: theme.colors.onSurface }]}
+        >
+          Daily Verse
+        </Text>
 
         <Card style={styles.card} elevation={2}>
           <Card.Content>
@@ -184,5 +221,46 @@ const styles = StyleSheet.create({
   },
   continueText: {
     fontWeight: "600",
+  },
+  readingCard: {
+    width: "100%",
+    maxWidth: 600,
+    alignSelf: "center",
+    marginBottom: 8,
+    marginTop: 8,
+  },
+  readingCardContent: {
+    paddingVertical: 8,
+  },
+  readingCardTextContainer: {
+    marginBottom: 16,
+  },
+  readingTitle: {
+    fontWeight: "bold",
+    marginBottom: 8,
+  },
+  readingSubtitle: {
+    lineHeight: 22,
+  },
+  readingButton: {
+    alignSelf: "flex-start",
+  },
+  readingButtonContent: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+  },
+  sectionDivider: {
+    marginVertical: 16,
+    maxWidth: 600,
+    alignSelf: "center",
+    width: "100%",
+  },
+  sectionTitle: {
+    fontWeight: "bold",
+    marginBottom: 12,
+    paddingHorizontal: 8,
+    maxWidth: 600,
+    alignSelf: "center",
+    width: "100%",
   },
 });
