@@ -9,14 +9,25 @@ import {
   ActivityIndicator,
 } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { getRandomBibleVerse, BibleVerse } from "@/services/bibleService";
+import { useRouter } from "expo-router";
+import {
+  getRandomBibleVerse,
+  BibleVerse,
+  getBibleBooks,
+} from "@/services/bibleService";
 import { useUserPreferencesStore } from "@/store/userPreferencesStore";
+import { useBibleReadingStore } from "@/store/bibleReadingStore";
 
 export default function Index() {
   const theme = usePaperTheme();
+  const router = useRouter();
   const { preferredTranslation } = useUserPreferencesStore();
+  const { lastBook, lastChapter } = useBibleReadingStore();
   const [verse, setVerse] = useState<BibleVerse | null>(null);
   const [loading, setLoading] = useState(false);
+
+  const books = getBibleBooks();
+  const lastBookData = lastBook ? books.find((b) => b.slug === lastBook) : null;
 
   const handleGetVerse = async () => {
     setLoading(true);
@@ -35,11 +46,39 @@ export default function Index() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const handleContinueReading = () => {
+    if (lastBook && lastChapter) {
+      router.push(`/bible/${lastBook}/${lastChapter}`);
+    }
+  };
+
   return (
     <SafeAreaView
       style={[styles.container, { backgroundColor: theme.colors.background }]}
     >
       <ScrollView showsVerticalScrollIndicator={false}>
+        {lastBook && lastChapter && lastBookData && (
+          <Card style={styles.card} elevation={2}>
+            <Card.Content>
+              <Text
+                variant="titleMedium"
+                style={[styles.cardTitle, { color: theme.colors.primary }]}
+              >
+                Continue Reading
+              </Text>
+              <Divider style={styles.divider} />
+              <Text variant="bodyLarge" style={styles.continueText}>
+                {lastBookData.name} Chapter {lastChapter}
+              </Text>
+            </Card.Content>
+            <Card.Actions>
+              <Button mode="contained" onPress={handleContinueReading}>
+                Resume
+              </Button>
+            </Card.Actions>
+          </Card>
+        )}
+
         <Card style={styles.card} elevation={2}>
           <Card.Content>
             {loading ? (
@@ -138,5 +177,12 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     marginTop: 16,
+  },
+  cardTitle: {
+    fontWeight: "bold",
+    marginBottom: 4,
+  },
+  continueText: {
+    fontWeight: "600",
   },
 });
