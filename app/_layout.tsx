@@ -9,7 +9,7 @@ import { useBibleReadingStore } from "../store/bibleReadingStore";
 
 export default function RootLayout() {
   const systemColorScheme = useColorScheme();
-  const { isDarkMode, setIsDarkMode } = useThemeStore();
+  const { isDarkMode, setIsDarkMode, themeMode, loadThemePreferences } = useThemeStore();
   const { hasCompletedOnboarding, isLoading, loadPreferences } =
     useUserPreferencesStore();
   const { loadReadingData, isLoading: isReadingDataLoading } =
@@ -20,20 +20,24 @@ export default function RootLayout() {
 
   console.log("[PATH]", path);
 
-  // Load user preferences on mount
+  // Load user preferences and theme preferences on mount
   useEffect(() => {
     const initializeStores = async () => {
-      await Promise.all([loadPreferences(), loadReadingData()]);
+      await Promise.all([
+        loadPreferences(),
+        loadReadingData(),
+        loadThemePreferences(),
+      ]);
     };
     initializeStores();
-  }, [loadPreferences, loadReadingData]);
+  }, [loadPreferences, loadReadingData, loadThemePreferences]);
 
-  // Sync with system theme on mount and when system theme changes
+  // Sync with system theme only when themeMode is "system"
   useEffect(() => {
-    if (systemColorScheme !== null) {
+    if (themeMode === "system" && systemColorScheme !== null) {
       setIsDarkMode(systemColorScheme === "dark");
     }
-  }, [systemColorScheme, setIsDarkMode]);
+  }, [systemColorScheme, setIsDarkMode, themeMode]);
 
   // Handle onboarding navigation
   useEffect(() => {
@@ -81,6 +85,13 @@ export default function RootLayout() {
         <Stack.Screen
           name="onboarding"
           options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="settings"
+          options={{
+            presentation: "modal",
             headerShown: false,
           }}
         />

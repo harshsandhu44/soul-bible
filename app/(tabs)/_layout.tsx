@@ -1,9 +1,10 @@
-import { Tabs } from "expo-router";
-import { useTheme as usePaperTheme } from "react-native-paper";
+import { Tabs, useRouter } from "expo-router";
+import { IconButton, useTheme as usePaperTheme } from "react-native-paper";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 
 export default function TabsLayout() {
   const theme = usePaperTheme();
+  const router = useRouter();
 
   return (
     <Tabs
@@ -30,6 +31,13 @@ export default function TabsLayout() {
             <MaterialCommunityIcons name="home" size={size} color={color} />
           ),
           headerShown: true,
+          headerRight: () => (
+            <IconButton
+              icon="cog-outline"
+              iconColor={theme.colors.onSurface}
+              onPress={() => router.push("/settings")}
+            />
+          ),
         }}
       />
       <Tabs.Screen

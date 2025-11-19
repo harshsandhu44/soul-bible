@@ -4,14 +4,17 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 const STORAGE_KEYS = {
   HAS_COMPLETED_ONBOARDING: "hasCompletedOnboarding",
   PREFERRED_TRANSLATION: "preferredTranslation",
+  FONT_SIZE: "fontSize",
 };
 
 type UserPreferencesStore = {
   hasCompletedOnboarding: boolean;
   preferredTranslation: string;
+  fontSize: number;
   isLoading: boolean;
   setOnboardingComplete: () => void;
   setPreferredTranslation: (translation: string) => void;
+  setFontSize: (size: number) => void;
   loadPreferences: () => Promise<void>;
 };
 
@@ -19,6 +22,7 @@ export const useUserPreferencesStore = create<UserPreferencesStore>(
   (set) => ({
     hasCompletedOnboarding: false,
     preferredTranslation: "kjv",
+    fontSize: 18,
     isLoading: true,
 
     setOnboardingComplete: async () => {
@@ -45,16 +49,27 @@ export const useUserPreferencesStore = create<UserPreferencesStore>(
       }
     },
 
+    setFontSize: async (size: number) => {
+      try {
+        await AsyncStorage.setItem(STORAGE_KEYS.FONT_SIZE, size.toString());
+        set({ fontSize: size });
+      } catch (error) {
+        console.error("Error saving font size:", error);
+      }
+    },
+
     loadPreferences: async () => {
       try {
-        const [onboardingStatus, translation] = await Promise.all([
+        const [onboardingStatus, translation, fontSize] = await Promise.all([
           AsyncStorage.getItem(STORAGE_KEYS.HAS_COMPLETED_ONBOARDING),
           AsyncStorage.getItem(STORAGE_KEYS.PREFERRED_TRANSLATION),
+          AsyncStorage.getItem(STORAGE_KEYS.FONT_SIZE),
         ]);
 
         set({
           hasCompletedOnboarding: onboardingStatus === "true",
           preferredTranslation: translation || "kjv",
+          fontSize: fontSize ? parseInt(fontSize, 10) : 18,
           isLoading: false,
         });
       } catch (error) {

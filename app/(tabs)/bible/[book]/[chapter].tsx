@@ -27,7 +27,7 @@ export default function ChapterReaderScreen() {
     book: string;
     chapter: string;
   }>();
-  const { preferredTranslation } = useUserPreferencesStore();
+  const { preferredTranslation, fontSize } = useUserPreferencesStore();
   const {
     setLastPosition,
     addToHistory,
@@ -170,7 +170,14 @@ export default function ChapterReaderScreen() {
         <View style={styles.textContainer}>
           <Text
             variant="bodyLarge"
-            style={[styles.chapterText, { color: theme.colors.onSurface }]}
+            style={[
+              styles.chapterText,
+              {
+                color: theme.colors.onSurface,
+                fontSize: fontSize,
+                lineHeight: fontSize * 1.78,
+              },
+            ]}
           >
             {chapterData.text}
           </Text>
@@ -265,8 +272,6 @@ const styles = StyleSheet.create({
     marginBottom: 32,
   },
   chapterText: {
-    lineHeight: 32,
-    fontSize: 18,
     textAlign: "justify",
   },
   navigationContainer: {
