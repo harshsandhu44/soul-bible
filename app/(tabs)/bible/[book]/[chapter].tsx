@@ -93,13 +93,13 @@ export default function ChapterReaderScreen() {
 
   const handlePreviousChapter = () => {
     if (hasPreviousChapter) {
-      router.setParams({ chapter: (chapterNum - 1).toString() });
+      router.push(`/bible/${book}/${chapterNum - 1}`);
     }
   };
 
   const handleNextChapter = () => {
     if (hasNextChapter) {
-      router.setParams({ chapter: (chapterNum + 1).toString() });
+      router.push(`/bible/${book}/${chapterNum + 1}`);
     }
   };
 
