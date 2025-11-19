@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { View, StyleSheet, ScrollView } from "react-native";
 import {
   Text,
@@ -30,6 +30,11 @@ export default function Index() {
     }
   };
 
+  useEffect(() => {
+    handleGetVerse();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
     <SafeAreaView
       style={[styles.container, { backgroundColor: theme.colors.background }]}
@@ -37,61 +42,47 @@ export default function Index() {
       <ScrollView showsVerticalScrollIndicator={false}>
         <Card style={styles.card} elevation={2}>
           <Card.Content>
-            <Text variant="headlineMedium" style={styles.title}>
-              Welcome!
-            </Text>
-            <Divider style={styles.divider} />
-            <Text variant="bodyLarge" style={styles.subtitle}>
-              Your Spiritual Journey
-            </Text>
-            <Text variant="bodyMedium" style={styles.description}>
-              Begin your spiritual journey with Soul Bible. Explore sacred
-              texts, reflect on daily messages, and grow in your faith.
-            </Text>
-            <View style={styles.featureList}>
-              <Text variant="bodyMedium">📖 Sacred Texts</Text>
-              <Text variant="bodyMedium">🙏 Daily Reflections</Text>
-              <Text variant="bodyMedium">✨ Personal Journey</Text>
-              <Text variant="bodyMedium">🌙 Light & Dark Mode</Text>
-            </View>
+            {loading ? (
+              <View style={styles.loadingContainer}>
+                <ActivityIndicator size="large" />
+                <Text
+                  variant="bodyMedium"
+                  style={[
+                    styles.loadingText,
+                    { color: theme.colors.onSurfaceVariant },
+                  ]}
+                >
+                  Loading verse...
+                </Text>
+              </View>
+            ) : verse ? (
+              <>
+                <Text
+                  variant="titleMedium"
+                  style={[
+                    styles.verseReference,
+                    { color: theme.colors.primary },
+                  ]}
+                >
+                  {verse.reference}
+                </Text>
+                <Divider style={styles.divider} />
+                <Text variant="bodyLarge" style={styles.verseText}>
+                  &quot;{verse.text}&quot;
+                </Text>
+                <Text
+                  variant="bodySmall"
+                  style={[
+                    styles.translation,
+                    { color: theme.colors.onSurfaceVariant },
+                  ]}
+                >
+                  {verse.translation}
+                </Text>
+              </>
+            ) : null}
           </Card.Content>
-          <Card.Actions>
-            <Button
-              mode="contained"
-              onPress={handleGetVerse}
-              loading={loading}
-              disabled={loading}
-            >
-              Get Daily Verse
-            </Button>
-          </Card.Actions>
         </Card>
-
-        {verse && (
-          <Card style={styles.card} elevation={2}>
-            <Card.Content>
-              <Text
-                variant="titleMedium"
-                style={[styles.verseReference, { color: theme.colors.primary }]}
-              >
-                {verse.reference}
-              </Text>
-              <Divider style={styles.divider} />
-              <Text variant="bodyLarge" style={styles.verseText}>
-                "{verse.text}"
-              </Text>
-              <Text
-                variant="bodySmall"
-                style={[
-                  styles.translation,
-                  { color: theme.colors.onSurfaceVariant },
-                ]}
-              >
-                {verse.translation}
-              </Text>
-            </Card.Content>
-          </Card>
-        )}
       </ScrollView>
     </SafeAreaView>
   );
@@ -139,5 +130,13 @@ const styles = StyleSheet.create({
   translation: {
     textAlign: "right",
     fontSize: 12,
+  },
+  loadingContainer: {
+    paddingVertical: 40,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  loadingText: {
+    marginTop: 16,
   },
 });
