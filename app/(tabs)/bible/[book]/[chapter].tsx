@@ -9,9 +9,12 @@ import {
   Snackbar,
   Button,
 } from "react-native-paper";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, useLocalSearchParams } from "expo-router";
-import { getChapter, getBibleBooks, BibleChapter } from "@/services/bibleService";
+import {
+  getChapter,
+  getBibleBooks,
+  BibleChapter,
+} from "@/services/bibleService";
 import { useUserPreferencesStore } from "@/store/userPreferencesStore";
 import { useBibleReadingStore } from "@/store/bibleReadingStore";
 import { useNavigation } from "@react-navigation/native";
@@ -68,7 +71,7 @@ export default function ChapterReaderScreen() {
     } catch (err) {
       console.error("Error fetching chapter:", err);
       setError(
-        "Failed to load chapter. Please check your connection and try again."
+        "Failed to load chapter. Please check your connection and try again.",
       );
     } finally {
       setLoading(false);
@@ -109,7 +112,7 @@ export default function ChapterReaderScreen() {
 
   if (loading) {
     return (
-      <SafeAreaView
+      <View
         style={[styles.container, { backgroundColor: theme.colors.background }]}
       >
         <View style={styles.loadingContainer}>
@@ -124,13 +127,13 @@ export default function ChapterReaderScreen() {
             Loading chapter...
           </Text>
         </View>
-      </SafeAreaView>
+      </View>
     );
   }
 
   if (error || !chapterData) {
     return (
-      <SafeAreaView
+      <View
         style={[styles.container, { backgroundColor: theme.colors.background }]}
       >
         <View style={styles.errorContainer}>
@@ -151,12 +154,12 @@ export default function ChapterReaderScreen() {
             </Button>
           )}
         </View>
-      </SafeAreaView>
+      </View>
     );
   }
 
   return (
-    <SafeAreaView
+    <View
       style={[styles.container, { backgroundColor: theme.colors.background }]}
     >
       <ScrollView
@@ -164,15 +167,6 @@ export default function ChapterReaderScreen() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.header}>
-          <Text
-            variant="headlineSmall"
-            style={[styles.chapterTitle, { color: theme.colors.primary }]}
-          >
-            {bookData?.name} {chapter}
-          </Text>
-        </View>
-
         <View style={styles.textContainer}>
           <Text
             variant="bodyLarge"
@@ -208,7 +202,11 @@ export default function ChapterReaderScreen() {
         icon={isBookmarked ? "bookmark" : "bookmark-outline"}
         style={[
           styles.fab,
-          { backgroundColor: isBookmarked ? theme.colors.primary : theme.colors.surface },
+          {
+            backgroundColor: isBookmarked
+              ? theme.colors.primary
+              : theme.colors.surface,
+          },
         ]}
         color={isBookmarked ? theme.colors.onPrimary : theme.colors.onSurface}
         onPress={handleBookmarkToggle}
@@ -222,7 +220,7 @@ export default function ChapterReaderScreen() {
       >
         {snackbarMessage}
       </Snackbar>
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -262,9 +260,6 @@ const styles = StyleSheet.create({
   header: {
     marginBottom: 24,
     alignItems: "center",
-  },
-  chapterTitle: {
-    fontWeight: "bold",
   },
   textContainer: {
     marginBottom: 32,

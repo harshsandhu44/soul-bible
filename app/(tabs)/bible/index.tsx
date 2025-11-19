@@ -7,7 +7,6 @@ import {
   Button,
   Divider,
 } from "react-native-paper";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { getBibleBooks } from "@/services/bibleService";
 import { useBibleReadingStore } from "@/store/bibleReadingStore";
@@ -32,7 +31,7 @@ export default function BibleBooksScreen() {
   };
 
   return (
-    <SafeAreaView
+    <View
       style={[styles.container, { backgroundColor: theme.colors.background }]}
     >
       <ScrollView showsVerticalScrollIndicator={false}>
@@ -153,16 +152,18 @@ export default function BibleBooksScreen() {
           </View>
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    paddingVertical: 16,
+    paddingHorizontal: 8,
   },
   continueCard: {
-    margin: 16,
+    padding: 16,
     marginBottom: 8,
   },
   continueTitle: {
@@ -175,7 +176,7 @@ const styles = StyleSheet.create({
     marginVertical: 16,
   },
   section: {
-    paddingHorizontal: 16,
+    paddingHorizontal: 8,
     marginBottom: 24,
   },
   sectionTitle: {

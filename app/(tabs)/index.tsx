@@ -57,58 +57,10 @@ export default function Index() {
   };
 
   return (
-    <SafeAreaView
+    <View
       style={[styles.container, { backgroundColor: theme.colors.background }]}
     >
       <ScrollView showsVerticalScrollIndicator={false}>
-        <Card style={styles.readingCard} elevation={3}>
-          <Card.Content style={styles.readingCardContent}>
-            <View style={styles.readingCardTextContainer}>
-              <Text
-                variant="headlineSmall"
-                style={[styles.readingTitle, { color: theme.colors.primary }]}
-              >
-                {lastBook && lastChapter && lastBookData
-                  ? "Continue Reading"
-                  : "Start Reading"}
-              </Text>
-              {lastBook && lastChapter && lastBookData && (
-                <Text
-                  variant="bodyLarge"
-                  style={[
-                    styles.readingSubtitle,
-                    { color: theme.colors.onSurfaceVariant },
-                  ]}
-                >
-                  {lastBookData.name} Chapter {lastChapter}
-                </Text>
-              )}
-              {!lastBook && (
-                <Text
-                  variant="bodyMedium"
-                  style={[
-                    styles.readingSubtitle,
-                    { color: theme.colors.onSurfaceVariant },
-                  ]}
-                >
-                  Begin your journey through the Bible
-                </Text>
-              )}
-            </View>
-            <Button
-              mode="contained"
-              icon={lastBook ? "book-open-page-variant" : "book"}
-              onPress={handleStartReading}
-              style={styles.readingButton}
-              contentStyle={styles.readingButtonContent}
-            >
-              {lastBook ? "Resume" : "Start"}
-            </Button>
-          </Card.Content>
-        </Card>
-
-        <Divider style={styles.sectionDivider} />
-
         <Text
           variant="titleMedium"
           style={[styles.sectionTitle, { color: theme.colors.onSurface }]}
@@ -159,14 +111,62 @@ export default function Index() {
             ) : null}
           </Card.Content>
         </Card>
+
+        <Divider style={styles.sectionDivider} />
+
+        <Card style={styles.readingCard} elevation={3}>
+          <Card.Content>
+            <View style={styles.readingCardTextContainer}>
+              <Text
+                variant="titleLarge"
+                style={[styles.readingTitle, { color: theme.colors.primary }]}
+              >
+                {lastBook && lastChapter && lastBookData
+                  ? "Continue Reading"
+                  : "Start Reading"}
+              </Text>
+              {lastBook && lastChapter && lastBookData && (
+                <Text
+                  variant="bodyMedium"
+                  style={[
+                    styles.readingSubtitle,
+                    { color: theme.colors.onSurfaceVariant },
+                  ]}
+                >
+                  {lastBookData.name} Chapter {lastChapter}
+                </Text>
+              )}
+              {!lastBook && (
+                <Text
+                  variant="bodyMedium"
+                  style={[
+                    styles.readingSubtitle,
+                    { color: theme.colors.onSurfaceVariant },
+                  ]}
+                >
+                  Begin your journey through the Bible
+                </Text>
+              )}
+            </View>
+            <Button
+              mode="contained"
+              icon={lastBook ? "book-open-page-variant" : "book"}
+              onPress={handleStartReading}
+              style={styles.readingButton}
+            >
+              {lastBook ? "Resume" : "Start"}
+            </Button>
+          </Card.Content>
+        </Card>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    paddingVertical: 16,
     paddingHorizontal: 8,
   },
   card: {
@@ -226,28 +226,22 @@ const styles = StyleSheet.create({
     width: "100%",
     maxWidth: 600,
     alignSelf: "center",
+    padding: 16,
     marginBottom: 8,
     marginTop: 8,
-  },
-  readingCardContent: {
-    paddingVertical: 8,
   },
   readingCardTextContainer: {
     marginBottom: 16,
   },
   readingTitle: {
-    fontWeight: "bold",
+    fontWeight: "800",
     marginBottom: 8,
   },
   readingSubtitle: {
     lineHeight: 22,
   },
   readingButton: {
-    alignSelf: "flex-start",
-  },
-  readingButtonContent: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
+    alignSelf: "flex-end",
   },
   sectionDivider: {
     marginVertical: 16,

@@ -1,18 +1,16 @@
 import { View, StyleSheet, ScrollView } from "react-native";
 import {
   Text,
-  Card,
   useTheme as usePaperTheme,
-  IconButton,
   Chip,
   ActivityIndicator,
 } from "react-native-paper";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { getBibleBooks } from "@/services/bibleService";
 import { useBibleReadingStore } from "@/store/bibleReadingStore";
 import { useEffect } from "react";
 import { useNavigation } from "@react-navigation/native";
+import { ChapterCard } from "@/components/ChapterCard";
 
 export default function ChapterSelectionScreen() {
   const theme = usePaperTheme();
@@ -25,8 +23,6 @@ export default function ChapterSelectionScreen() {
   const books = getBibleBooks();
   const bookData = books.find((b) => b.slug === book);
 
-  console.log("[DATA]", bookData);
-
   useEffect(() => {
     if (bookData) {
       navigation.setOptions({ title: bookData.name });
@@ -35,28 +31,23 @@ export default function ChapterSelectionScreen() {
 
   if (!bookData) {
     return (
-      <SafeAreaView
+      <View
         style={[styles.container, { backgroundColor: theme.colors.background }]}
       >
         <Text>Book not found</Text>
-      </SafeAreaView>
+      </View>
     );
   }
 
   const chapters = Array.from({ length: bookData.chapters }, (_, i) => i + 1);
 
-  console.log("Book:", book);
-  console.log("Book Data:", bookData);
-  console.log("Chapters array:", chapters);
-  console.log("Is Loading:", isLoading);
-
   const handleChapterPress = (chapter: number) => {
-    console.log("Navigating to:", `/bible/${book}/${chapter}`);
+    console.info("Navigating to:", `/bible/${book}/${chapter}`);
     router.push(`/bible/${book}/${chapter}`);
   };
 
   return (
-    <SafeAreaView
+    <View
       style={[styles.container, { backgroundColor: theme.colors.background }]}
     >
       {isLoading ? (
@@ -75,12 +66,6 @@ export default function ChapterSelectionScreen() {
       ) : (
         <>
           <View style={styles.header}>
-            <Text
-              variant="headlineSmall"
-              style={[styles.bookTitle, { color: theme.colors.primary }]}
-            >
-              {bookData.name}
-            </Text>
             <Chip
               icon="book-open-variant"
               style={[
@@ -104,50 +89,20 @@ export default function ChapterSelectionScreen() {
                 const isBookmarked = isChapterBookmarked(book, chapter);
 
                 return (
-                  <Card
+                  <ChapterCard
                     key={chapter}
-                    style={[
-                      styles.chapterCard,
-                      {
-                        backgroundColor: isRead
-                          ? theme.colors.secondaryContainer
-                          : theme.colors.surfaceVariant,
-                      },
-                    ]}
+                    chapter={chapter}
+                    isRead={isRead}
+                    isBookmarked={isBookmarked}
                     onPress={() => handleChapterPress(chapter)}
-                    mode="elevated"
-                  >
-                    <Card.Content style={styles.chapterCardContent}>
-                      <Text
-                        variant="titleLarge"
-                        style={[
-                          styles.chapterNumber,
-                          {
-                            color: isRead
-                              ? theme.colors.onSecondaryContainer
-                              : theme.colors.onSurface,
-                          },
-                        ]}
-                      >
-                        {chapter}
-                      </Text>
-                      {isBookmarked && (
-                        <IconButton
-                          icon="bookmark"
-                          size={20}
-                          iconColor={theme.colors.primary}
-                          style={styles.bookmarkIcon}
-                        />
-                      )}
-                    </Card.Content>
-                  </Card>
+                  />
                 );
               })}
             </View>
           </ScrollView>
         </>
       )}
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -160,9 +115,6 @@ const styles = StyleSheet.create({
     paddingBottom: 8,
     alignItems: "center",
     gap: 8,
-  },
-  bookTitle: {
-    fontWeight: "bold",
   },
   chapterCountChip: {
     marginBottom: 8,
@@ -177,27 +129,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "flex-start",
-  },
-  chapterCard: {
-    width: "23%",
-    margin: "1%",
-    minHeight: 80,
-    aspectRatio: 1,
-  },
-  chapterCardContent: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    position: "relative",
-  },
-  chapterNumber: {
-    fontWeight: "bold",
-  },
-  bookmarkIcon: {
-    position: "absolute",
-    top: -8,
-    right: -8,
-    margin: 0,
   },
   loadingContainer: {
     flex: 1,
