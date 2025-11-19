@@ -13,12 +13,14 @@ export default function WelcomeScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: theme.colors.background }]}
+    >
       <View style={styles.content}>
         <View style={styles.header}>
           <Text
             variant="displayMedium"
-            style={[styles.title, { color: theme.colors.primary }]}
+            style={[styles.title, { color: theme.colors.onBackground }]}
           >
             Soul Bible
           </Text>
@@ -35,11 +37,11 @@ export default function WelcomeScreen() {
             variant="bodyLarge"
             style={[
               styles.descriptionText,
-              { color: theme.colors.onSurfaceVariant },
+              { color: theme.colors.onBackground },
             ]}
           >
             Welcome to Soul Bible, your daily source of inspirational Bible
-            verses. Let's personalize your experience by selecting your
+            verses. Let&apos;s personalize your experience by selecting your
             preferred Bible translation.
           </Text>
         </View>

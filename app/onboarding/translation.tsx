@@ -67,7 +67,9 @@ export default function TranslationScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: theme.colors.background }]}
+    >
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
