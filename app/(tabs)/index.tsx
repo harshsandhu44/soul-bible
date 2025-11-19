@@ -8,7 +8,6 @@ import {
   Divider,
   ActivityIndicator,
 } from "react-native-paper";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import {
   getRandomBibleVerse,
@@ -61,13 +60,6 @@ export default function Index() {
       style={[styles.container, { backgroundColor: theme.colors.background }]}
     >
       <ScrollView showsVerticalScrollIndicator={false}>
-        <Text
-          variant="titleMedium"
-          style={[styles.sectionTitle, { color: theme.colors.onSurface }]}
-        >
-          Daily Verse
-        </Text>
-
         <Card style={styles.card} elevation={2}>
           <Card.Content>
             {loading ? (
@@ -158,6 +150,16 @@ export default function Index() {
             </Button>
           </Card.Content>
         </Card>
+
+        <View style={styles.buttonsGroup}>
+          <Button
+            mode="contained-tonal"
+            icon="bookmark"
+            onPress={() => router.push("/(tabs)/bookmarks")}
+          >
+            View Bookmarks
+          </Button>
+        </View>
       </ScrollView>
     </View>
   );
@@ -166,7 +168,7 @@ export default function Index() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingVertical: 16,
+    paddingVertical: 24,
     paddingHorizontal: 8,
   },
   card: {
@@ -249,12 +251,9 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     width: "100%",
   },
-  sectionTitle: {
-    fontWeight: "bold",
-    marginBottom: 12,
-    paddingHorizontal: 8,
+  buttonsGroup: {
+    marginTop: 16,
+    gap: 12,
     maxWidth: 600,
-    alignSelf: "center",
-    width: "100%",
   },
 });

@@ -18,6 +18,7 @@ export default function TabsLayout() {
           backgroundColor: theme.colors.surface,
         },
         headerTintColor: theme.colors.onSurface,
+        headerShown: false,
       }}
     >
       <Tabs.Screen
@@ -28,6 +29,7 @@ export default function TabsLayout() {
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="home" size={size} color={color} />
           ),
+          headerShown: true,
         }}
       />
       <Tabs.Screen
@@ -42,7 +44,16 @@ export default function TabsLayout() {
               color={color}
             />
           ),
-          headerShown: false,
+        }}
+      />
+      <Tabs.Screen
+        name="bookmarks"
+        options={{
+          title: "Bookmarks",
+          tabBarLabel: "Bookmarks",
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="bookmark" size={size} color={color} />
+          ),
         }}
       />
     </Tabs>
