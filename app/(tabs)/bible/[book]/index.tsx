@@ -23,6 +23,8 @@ export default function ChapterSelectionScreen() {
   const books = getBibleBooks();
   const bookData = books.find((b) => b.slug === book);
 
+  console.log("[DATA]", bookData);
+
   useEffect(() => {
     if (bookData) {
       navigation.setOptions({ title: bookData.name });
@@ -53,8 +55,10 @@ export default function ChapterSelectionScreen() {
       <Card
         style={[
           styles.chapterCard,
-          isRead && {
-            backgroundColor: theme.colors.secondaryContainer,
+          {
+            backgroundColor: isRead
+              ? theme.colors.secondaryContainer
+              : theme.colors.surfaceVariant,
           },
         ]}
         onPress={() => handleChapterPress(item)}
@@ -65,7 +69,11 @@ export default function ChapterSelectionScreen() {
             variant="titleLarge"
             style={[
               styles.chapterNumber,
-              isRead && { color: theme.colors.onSecondaryContainer },
+              {
+                color: isRead
+                  ? theme.colors.onSecondaryContainer
+                  : theme.colors.onSurface,
+              },
             ]}
           >
             {item}
