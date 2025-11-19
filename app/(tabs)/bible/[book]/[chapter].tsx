@@ -168,19 +168,34 @@ export default function ChapterReaderScreen() {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.textContainer}>
-          <Text
-            variant="bodyLarge"
-            style={[
-              styles.chapterText,
-              {
-                color: theme.colors.onSurface,
-                fontSize: fontSize,
-                lineHeight: fontSize * 1.78,
-              },
-            ]}
-          >
-            {chapterData.text}
-          </Text>
+          {chapterData.verses.map((verse) => (
+            <View
+              key={verse.reference}
+              style={{ flexDirection: "row", gap: 8 }}
+            >
+              <Text
+                style={{
+                  color: theme.colors.onBackground,
+                  opacity: 0.5,
+                }}
+              >
+                {verse.reference}
+              </Text>
+              <Text
+                variant="bodyLarge"
+                style={[
+                  styles.chapterText,
+                  {
+                    color: theme.colors.onSurface,
+                    fontSize: fontSize,
+                    lineHeight: fontSize * 1.78,
+                  },
+                ]}
+              >
+                {verse.text}
+              </Text>
+            </View>
+          ))}
         </View>
 
         <View style={styles.navigationContainer}>
@@ -270,9 +285,10 @@ const styles = StyleSheet.create({
   },
   textContainer: {
     marginBottom: 32,
+    gap: 12,
   },
   chapterText: {
-    textAlign: "justify",
+    textAlign: "left",
   },
   navigationContainer: {
     flexDirection: "row",
