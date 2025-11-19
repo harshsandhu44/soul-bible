@@ -42,24 +42,29 @@ const FALLBACK_VERSE: BibleVerse = {
 
 /**
  * Fetches a random Bible verse from bible-api.com
+ * @param translation - Optional Bible translation code (e.g., 'kjv', 'web', 'asv'). Defaults to 'kjv'
  * @returns Promise<BibleVerse> - The Bible verse object
  */
-export async function getRandomBibleVerse(): Promise<BibleVerse> {
+export async function getRandomBibleVerse(
+  translation: string = 'kjv'
+): Promise<BibleVerse> {
   try {
     // Select a random verse from our curated list
     const randomIndex = Math.floor(Math.random() * INSPIRATIONAL_VERSES.length);
     const verseReference = INSPIRATIONAL_VERSES[randomIndex];
 
+    // Build URL with translation parameter
+    const url = `https://bible-api.com/${encodeURIComponent(
+      verseReference
+    )}?translation=${translation}`;
+
     // Fetch from bible-api.com
-    const response = await fetch(
-      `https://bible-api.com/${encodeURIComponent(verseReference)}`,
-      {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      }
-    );
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
 
     if (!response.ok) {
       throw new Error(`API request failed with status ${response.status}`);
