@@ -1,11 +1,12 @@
 import { Stack, usePathname, useRouter, useSegments } from "expo-router";
 import { PaperProvider } from "react-native-paper";
-import { useEffect } from "react";
-import { useColorScheme } from "react-native";
+import { useEffect, useRef } from "react";
+import { useColorScheme, AppState, AppStateStatus } from "react-native";
 import { lightTheme, darkTheme } from "../constants/theme";
 import { useThemeStore } from "../store/themeStore";
 import { useUserPreferencesStore } from "../store/userPreferencesStore";
 import { useBibleReadingStore } from "../store/bibleReadingStore";
+import { useAudioPlayerStore } from "../store/audioPlayerStore";
 
 export default function RootLayout() {
   const systemColorScheme = useColorScheme();
@@ -14,23 +15,26 @@ export default function RootLayout() {
     useUserPreferencesStore();
   const { loadReadingData, isLoading: isReadingDataLoading } =
     useBibleReadingStore();
+  const { loadAvailableVoices, stopPlayback } = useAudioPlayerStore();
   const router = useRouter();
   const path = usePathname();
   const segments = useSegments();
+  const appState = useRef(AppState.currentState);
 
   console.log("[PATH]", path);
 
-  // Load user preferences and theme preferences on mount
+  // Load user preferences, theme preferences, and available voices on mount
   useEffect(() => {
     const initializeStores = async () => {
       await Promise.all([
         loadPreferences(),
         loadReadingData(),
         loadThemePreferences(),
+        loadAvailableVoices(),
       ]);
     };
     initializeStores();
-  }, [loadPreferences, loadReadingData, loadThemePreferences]);
+  }, [loadPreferences, loadReadingData, loadThemePreferences, loadAvailableVoices]);
 
   // Sync with system theme only when themeMode is "system"
   useEffect(() => {
@@ -38,6 +42,26 @@ export default function RootLayout() {
       setIsDarkMode(systemColorScheme === "dark");
     }
   }, [systemColorScheme, setIsDarkMode, themeMode]);
+
+  // Listen to app state changes to pause audio when app goes to background
+  useEffect(() => {
+    const handleAppStateChange = (nextAppState: AppStateStatus) => {
+      if (
+        appState.current.match(/active/) &&
+        (nextAppState === "background" || nextAppState === "inactive")
+      ) {
+        // App is going to background or inactive - pause audio
+        stopPlayback();
+      }
+      appState.current = nextAppState;
+    };
+
+    const subscription = AppState.addEventListener("change", handleAppStateChange);
+
+    return () => {
+      subscription.remove();
+    };
+  }, [stopPlayback]);
 
   // Handle onboarding navigation
   useEffect(() => {

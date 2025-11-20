@@ -12,6 +12,7 @@ import {
 import { useRouter } from "expo-router";
 import { useThemeStore, ThemeMode } from "@/store/themeStore";
 import { useUserPreferencesStore } from "@/store/userPreferencesStore";
+import { useAudioPlayerStore } from "@/store/audioPlayerStore";
 import { BIBLE_TRANSLATIONS, FONT_SIZES } from "@/constants/translations";
 
 export default function SettingsScreen() {
@@ -20,6 +21,15 @@ export default function SettingsScreen() {
   const { themeMode, setThemeMode } = useThemeStore();
   const { fontSize, setFontSize, preferredTranslation, setPreferredTranslation } =
     useUserPreferencesStore();
+  const {
+    speed,
+    pitch,
+    selectedVoice,
+    availableVoices,
+    setSpeed,
+    setPitch,
+    setSelectedVoice,
+  } = useAudioPlayerStore();
 
   const handleThemeChange = (mode: ThemeMode) => {
     setThemeMode(mode);
@@ -31,6 +41,18 @@ export default function SettingsScreen() {
 
   const handleTranslationChange = (code: string) => {
     setPreferredTranslation(code);
+  };
+
+  const handleSpeedChange = (value: string) => {
+    setSpeed(parseFloat(value));
+  };
+
+  const handlePitchChange = (value: string) => {
+    setPitch(parseFloat(value));
+  };
+
+  const handleVoiceChange = (voiceId: string) => {
+    setSelectedVoice(voiceId === "default" ? null : voiceId);
   };
 
   return (
@@ -121,6 +143,135 @@ export default function SettingsScreen() {
             ))}
           </RadioButton.Group>
         </List.Section>
+
+        <Divider />
+
+        {/* Audio Settings Section */}
+        <List.Section>
+          <List.Subheader>Audio Settings</List.Subheader>
+
+          {/* Voice Selection */}
+          <Text
+            variant="titleSmall"
+            style={[styles.sectionTitle, { color: theme.colors.onSurface }]}
+          >
+            Voice
+          </Text>
+          <RadioButton.Group
+            onValueChange={handleVoiceChange}
+            value={selectedVoice || "default"}
+          >
+            <RadioButton.Item
+              label="Default"
+              value="default"
+              labelStyle={{ color: theme.colors.onSurface }}
+            />
+            {availableVoices.map((voice) => (
+              <View key={voice.identifier}>
+                <RadioButton.Item
+                  label={voice.name}
+                  value={voice.identifier}
+                  labelStyle={{ color: theme.colors.onSurface }}
+                />
+                <Text
+                  variant="bodySmall"
+                  style={[
+                    styles.voiceDescription,
+                    { color: theme.colors.onSurfaceVariant },
+                  ]}
+                >
+                  {voice.language} • {voice.quality}
+                </Text>
+              </View>
+            ))}
+          </RadioButton.Group>
+
+          {/* Speed Control */}
+          <Text
+            variant="titleSmall"
+            style={[styles.sectionTitle, { color: theme.colors.onSurface }]}
+          >
+            Speed
+          </Text>
+          <RadioButton.Group
+            onValueChange={handleSpeedChange}
+            value={speed.toString()}
+          >
+            <RadioButton.Item
+              label="0.5x (Very Slow)"
+              value="0.5"
+              labelStyle={{ color: theme.colors.onSurface }}
+            />
+            <RadioButton.Item
+              label="0.75x (Slow)"
+              value="0.75"
+              labelStyle={{ color: theme.colors.onSurface }}
+            />
+            <RadioButton.Item
+              label="1x (Normal)"
+              value="1"
+              labelStyle={{ color: theme.colors.onSurface }}
+            />
+            <RadioButton.Item
+              label="1.25x (Slightly Fast)"
+              value="1.25"
+              labelStyle={{ color: theme.colors.onSurface }}
+            />
+            <RadioButton.Item
+              label="1.5x (Fast)"
+              value="1.5"
+              labelStyle={{ color: theme.colors.onSurface }}
+            />
+            <RadioButton.Item
+              label="2x (Very Fast)"
+              value="2"
+              labelStyle={{ color: theme.colors.onSurface }}
+            />
+          </RadioButton.Group>
+
+          {/* Pitch Control */}
+          <Text
+            variant="titleSmall"
+            style={[styles.sectionTitle, { color: theme.colors.onSurface }]}
+          >
+            Pitch
+          </Text>
+          <RadioButton.Group
+            onValueChange={handlePitchChange}
+            value={pitch.toString()}
+          >
+            <RadioButton.Item
+              label="0.5 (Very Low)"
+              value="0.5"
+              labelStyle={{ color: theme.colors.onSurface }}
+            />
+            <RadioButton.Item
+              label="0.75 (Low)"
+              value="0.75"
+              labelStyle={{ color: theme.colors.onSurface }}
+            />
+            <RadioButton.Item
+              label="1.0 (Normal)"
+              value="1"
+              labelStyle={{ color: theme.colors.onSurface }}
+            />
+            <RadioButton.Item
+              label="1.25 (Slightly High)"
+              value="1.25"
+              labelStyle={{ color: theme.colors.onSurface }}
+            />
+            <RadioButton.Item
+              label="1.5 (High)"
+              value="1.5"
+              labelStyle={{ color: theme.colors.onSurface }}
+            />
+            <RadioButton.Item
+              label="2.0 (Very High)"
+              value="2"
+              labelStyle={{ color: theme.colors.onSurface }}
+            />
+          </RadioButton.Group>
+        </List.Section>
       </ScrollView>
     </SafeAreaView>
   );
@@ -137,5 +288,16 @@ const styles = StyleSheet.create({
     marginLeft: 56,
     marginTop: -8,
     marginBottom: 8,
+  },
+  voiceDescription: {
+    marginLeft: 56,
+    marginTop: -8,
+    marginBottom: 8,
+  },
+  sectionTitle: {
+    marginLeft: 16,
+    marginTop: 16,
+    marginBottom: 8,
+    fontWeight: "600",
   },
 });

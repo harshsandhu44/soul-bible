@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { View, StyleSheet, ScrollView } from "react-native";
 import {
   Text,
@@ -17,7 +17,9 @@ import {
 } from "@/services/bibleService";
 import { useUserPreferencesStore } from "@/store/userPreferencesStore";
 import { useBibleReadingStore } from "@/store/bibleReadingStore";
-import { useNavigation } from "@react-navigation/native";
+import { useAudioPlayerStore } from "@/store/audioPlayerStore";
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
+import AudioPlayer from "@/components/AudioPlayer";
 
 export default function ChapterReaderScreen() {
   const theme = usePaperTheme();
@@ -35,6 +37,7 @@ export default function ChapterReaderScreen() {
     removeBookmark,
     isChapterBookmarked,
   } = useBibleReadingStore();
+  const { stopPlayback } = useAudioPlayerStore();
 
   const [chapterData, setChapterData] = useState<BibleChapter | null>(null);
   const [loading, setLoading] = useState(true);
@@ -82,6 +85,16 @@ export default function ChapterReaderScreen() {
     fetchChapter();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [book, chapterNum, preferredTranslation]);
+
+  // Pause audio when screen loses focus
+  useFocusEffect(
+    useCallback(() => {
+      return () => {
+        // This cleanup function runs when screen loses focus
+        stopPlayback();
+      };
+    }, [stopPlayback])
+  );
 
   const handleBookmarkToggle = async () => {
     if (isBookmarked) {
@@ -162,6 +175,11 @@ export default function ChapterReaderScreen() {
     <View
       style={[styles.container, { backgroundColor: theme.colors.background }]}
     >
+      <AudioPlayer
+        chapterText={chapterData.text}
+        book={book}
+        chapter={chapterNum}
+      />
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
