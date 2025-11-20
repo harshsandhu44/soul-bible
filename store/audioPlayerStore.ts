@@ -55,6 +55,17 @@ const splitTextIntoChunks = (text: string, maxLength: number = 3900): string[] =
   return chunks;
 };
 
+// Helper to check if TTS is available
+const isSpeechAvailable = async (): Promise<boolean> => {
+  try {
+    const voices = await Speech.getAvailableVoicesAsync();
+    return voices.length > 0;
+  } catch (error) {
+    console.error("TTS availability check failed:", error);
+    return false;
+  }
+};
+
 interface AudioPlayerState {
   isPlaying: boolean;
   speed: number;
@@ -65,12 +76,15 @@ interface AudioPlayerState {
   availableVoices: Voice[];
   currentChunks: string[];
   currentChunkIndex: number;
+  errorMessage: string | null;
+  hasRetriedWithDefaultVoice: boolean;
 
   // Actions
   setIsPlaying: (isPlaying: boolean) => void;
   setSpeed: (speed: number) => void;
   setPitch: (pitch: number) => void;
   setSelectedVoice: (voiceId: string | null) => void;
+  setErrorMessage: (message: string | null) => void;
   loadAvailableVoices: () => Promise<void>;
   playChapter: (
     text: string,
@@ -94,6 +108,8 @@ export const useAudioPlayerStore = create<AudioPlayerState>()(
       availableVoices: [],
       currentChunks: [],
       currentChunkIndex: 0,
+      errorMessage: null,
+      hasRetriedWithDefaultVoice: false,
 
       setIsPlaying: (isPlaying: boolean) => set({ isPlaying }),
 
@@ -102,6 +118,8 @@ export const useAudioPlayerStore = create<AudioPlayerState>()(
       setPitch: (pitch: number) => set({ pitch }),
 
       setSelectedVoice: (voiceId: string | null) => set({ selectedVoice: voiceId }),
+
+      setErrorMessage: (message: string | null) => set({ errorMessage: message }),
 
       loadAvailableVoices: async () => {
         try {
@@ -119,7 +137,32 @@ export const useAudioPlayerStore = create<AudioPlayerState>()(
         chapter: number,
         onDone?: () => void,
       ) => {
-        const { speed, pitch, selectedVoice } = get();
+        // Check if TTS is available
+        const isAvailable = await isSpeechAvailable();
+        if (!isAvailable) {
+          set({
+            errorMessage: "Text-to-speech is not available on this device. Please ensure your device has TTS enabled.",
+            isPlaying: false,
+          });
+          console.error("TTS not available");
+          return;
+        }
+
+        const state = get();
+        const { speed, pitch, selectedVoice, availableVoices } = state;
+
+        // Validate selected voice exists
+        let voiceToUse: string | undefined = undefined;
+        if (selectedVoice) {
+          const voiceExists = availableVoices.some((v) => v.identifier === selectedVoice);
+          if (voiceExists) {
+            voiceToUse = selectedVoice;
+            console.log(`Using selected voice: ${selectedVoice}`);
+          } else {
+            console.warn(`Selected voice ${selectedVoice} not found, using system default`);
+            voiceToUse = undefined;
+          }
+        }
 
         // Stop any current playback
         await Speech.stop();
@@ -135,43 +178,68 @@ export const useAudioPlayerStore = create<AudioPlayerState>()(
           currentChapter: chapter,
           currentChunks: chunks,
           currentChunkIndex: 0,
+          errorMessage: null,
+          hasRetriedWithDefaultVoice: false,
         });
 
         // Function to play a single chunk
-        const playChunk = (chunkIndex: number) => {
-          const state = get();
-          if (!state.isPlaying || chunkIndex >= state.currentChunks.length) {
+        const playChunk = (chunkIndex: number, useDefaultVoice: boolean = false) => {
+          const currentState = get();
+          if (!currentState.isPlaying || chunkIndex >= currentState.currentChunks.length) {
             // Playback was stopped or all chunks are done
-            set({ isPlaying: false, currentChunks: [], currentChunkIndex: 0 });
+            set({ isPlaying: false, currentChunks: [], currentChunkIndex: 0, hasRetriedWithDefaultVoice: false });
             onDone?.();
             return;
           }
 
-          const chunk = state.currentChunks[chunkIndex];
-          console.log(`Playing chunk ${chunkIndex + 1}/${state.currentChunks.length}`);
+          const chunk = currentState.currentChunks[chunkIndex];
+          const voiceOption = useDefaultVoice ? undefined : voiceToUse;
+          console.log(`Playing chunk ${chunkIndex + 1}/${currentState.currentChunks.length}${useDefaultVoice ? " (with default voice)" : ""}`);
 
           Speech.speak(chunk, {
-            rate: state.speed,
-            pitch: state.pitch,
-            voice: state.selectedVoice || undefined,
+            rate: currentState.speed,
+            pitch: currentState.pitch,
+            voice: voiceOption,
             onDone: () => {
               const nextIndex = chunkIndex + 1;
-              if (nextIndex < state.currentChunks.length) {
+              if (nextIndex < currentState.currentChunks.length) {
                 // Play next chunk
                 set({ currentChunkIndex: nextIndex });
-                playChunk(nextIndex);
+                playChunk(nextIndex, useDefaultVoice);
               } else {
                 // All chunks completed
-                set({ isPlaying: false, currentChunks: [], currentChunkIndex: 0 });
+                set({ isPlaying: false, currentChunks: [], currentChunkIndex: 0, hasRetriedWithDefaultVoice: false });
                 onDone?.();
               }
             },
             onStopped: () => {
-              set({ isPlaying: false, currentChunks: [], currentChunkIndex: 0 });
+              set({ isPlaying: false, currentChunks: [], currentChunkIndex: 0, hasRetriedWithDefaultVoice: false });
             },
             onError: (error) => {
-              console.error("Speech error:", error);
-              set({ isPlaying: false, currentChunks: [], currentChunkIndex: 0 });
+              console.error(`Speech error on chunk ${chunkIndex + 1}:`, error, `Voice: ${voiceOption || "default"}`);
+
+              // Retry with default voice if this is first error and we were using a custom voice
+              if (!useDefaultVoice && voiceToUse && !currentState.hasRetriedWithDefaultVoice) {
+                console.log("Retrying with system default voice...");
+                set({ hasRetriedWithDefaultVoice: true });
+                playChunk(chunkIndex, true);
+              } else {
+                // Give up on this chunk, try next one or stop
+                const nextIndex = chunkIndex + 1;
+                if (nextIndex < currentState.currentChunks.length) {
+                  console.log("Moving to next chunk...");
+                  set({ currentChunkIndex: nextIndex });
+                  playChunk(nextIndex, useDefaultVoice);
+                } else {
+                  set({
+                    isPlaying: false,
+                    currentChunks: [],
+                    currentChunkIndex: 0,
+                    hasRetriedWithDefaultVoice: false,
+                    errorMessage: "Audio playback encountered an error. Try selecting a different voice in settings.",
+                  });
+                }
+              }
             },
           });
         };
@@ -182,7 +250,7 @@ export const useAudioPlayerStore = create<AudioPlayerState>()(
 
       stopPlayback: async () => {
         await Speech.stop();
-        set({ isPlaying: false, currentChunks: [], currentChunkIndex: 0 });
+        set({ isPlaying: false, currentChunks: [], currentChunkIndex: 0, hasRetriedWithDefaultVoice: false });
       },
 
       resetPlayer: () => {
@@ -192,6 +260,8 @@ export const useAudioPlayerStore = create<AudioPlayerState>()(
           currentChapter: null,
           currentChunks: [],
           currentChunkIndex: 0,
+          errorMessage: null,
+          hasRetriedWithDefaultVoice: false,
         });
       },
     }),

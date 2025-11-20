@@ -20,9 +20,14 @@ export default function AudioPlayer({
   chapter,
 }: AudioPlayerProps) {
   const theme = usePaperTheme();
-  const { isPlaying, playChapter, stopPlayback } = useAudioPlayerStore();
+  const { isPlaying, errorMessage, playChapter, stopPlayback, setErrorMessage } = useAudioPlayerStore();
 
   const handlePlayPause = async () => {
+    // Clear previous error when trying again
+    if (errorMessage) {
+      setErrorMessage(null);
+    }
+
     if (isPlaying) {
       await stopPlayback();
     } else {
@@ -45,9 +50,14 @@ export default function AudioPlayer({
       {/* Status Text */}
       <Text
         variant="labelSmall"
-        style={[styles.statusText, { color: theme.colors.onSurfaceVariant }]}
+        style={[
+          styles.statusText,
+          {
+            color: errorMessage ? theme.colors.error : theme.colors.onSurfaceVariant,
+          },
+        ]}
       >
-        {isPlaying ? "Playing..." : "Ready to play"}
+        {errorMessage || (isPlaying ? "Playing..." : "Ready to play")}
       </Text>
 
       {/* Playback Controls */}
