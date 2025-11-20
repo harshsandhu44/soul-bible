@@ -16,11 +16,13 @@ import { useThemeStore, ThemeMode } from "@/store/themeStore";
 import { useUserPreferencesStore } from "@/store/userPreferencesStore";
 import { useAudioPlayerStore } from "@/store/audioPlayerStore";
 import { BIBLE_TRANSLATIONS, FONT_SIZES } from "@/constants/translations";
+import { useFeatureFlag } from "posthog-react-native";
 
 export default function SettingsScreen() {
   const router = useRouter();
   const theme = usePaperTheme();
   const { themeMode, setThemeMode } = useThemeStore();
+  const showAudioPlayer = useFeatureFlag("audio-player") ?? false;
   const {
     fontSize,
     setFontSize,
@@ -159,105 +161,107 @@ export default function SettingsScreen() {
         <Divider />
 
         {/* Audio Settings Section */}
-        <List.Section>
-          <List.Subheader>Audio Settings</List.Subheader>
+        {showAudioPlayer && (
+          <List.Section>
+            <List.Subheader>Audio Settings</List.Subheader>
 
-          {/* Voice Selection */}
-          <List.Item
-            title="Voice"
-            description={getSelectedVoiceName()}
-            left={(props) => <List.Icon {...props} icon="account-voice" />}
-            right={(props) => <List.Icon {...props} icon="chevron-right" />}
-            onPress={() => setShowVoiceSheet(true)}
-            style={{ backgroundColor: theme.colors.surface }}
-          />
+            {/* Voice Selection */}
+            <List.Item
+              title="Voice"
+              description={getSelectedVoiceName()}
+              left={(props) => <List.Icon {...props} icon="account-voice" />}
+              right={(props) => <List.Icon {...props} icon="chevron-right" />}
+              onPress={() => setShowVoiceSheet(true)}
+              style={{ backgroundColor: theme.colors.surface }}
+            />
 
-          {/* Speed Control */}
-          <Text
-            variant="titleSmall"
-            style={[styles.sectionTitle, { color: theme.colors.onSurface }]}
-          >
-            Speed
-          </Text>
-          <RadioButton.Group
-            onValueChange={handleSpeedChange}
-            value={speed.toString()}
-          >
-            <RadioButton.Item
-              label="0.5x (Very Slow)"
-              value="0.5"
-              labelStyle={{ color: theme.colors.onSurface }}
-            />
-            <RadioButton.Item
-              label="0.75x (Slow)"
-              value="0.75"
-              labelStyle={{ color: theme.colors.onSurface }}
-            />
-            <RadioButton.Item
-              label="1x (Normal)"
-              value="1"
-              labelStyle={{ color: theme.colors.onSurface }}
-            />
-            <RadioButton.Item
-              label="1.25x (Slightly Fast)"
-              value="1.25"
-              labelStyle={{ color: theme.colors.onSurface }}
-            />
-            <RadioButton.Item
-              label="1.5x (Fast)"
-              value="1.5"
-              labelStyle={{ color: theme.colors.onSurface }}
-            />
-            <RadioButton.Item
-              label="2x (Very Fast)"
-              value="2"
-              labelStyle={{ color: theme.colors.onSurface }}
-            />
-          </RadioButton.Group>
+            {/* Speed Control */}
+            <Text
+              variant="titleSmall"
+              style={[styles.sectionTitle, { color: theme.colors.onSurface }]}
+            >
+              Speed
+            </Text>
+            <RadioButton.Group
+              onValueChange={handleSpeedChange}
+              value={speed.toString()}
+            >
+              <RadioButton.Item
+                label="0.5x (Very Slow)"
+                value="0.5"
+                labelStyle={{ color: theme.colors.onSurface }}
+              />
+              <RadioButton.Item
+                label="0.75x (Slow)"
+                value="0.75"
+                labelStyle={{ color: theme.colors.onSurface }}
+              />
+              <RadioButton.Item
+                label="1x (Normal)"
+                value="1"
+                labelStyle={{ color: theme.colors.onSurface }}
+              />
+              <RadioButton.Item
+                label="1.25x (Slightly Fast)"
+                value="1.25"
+                labelStyle={{ color: theme.colors.onSurface }}
+              />
+              <RadioButton.Item
+                label="1.5x (Fast)"
+                value="1.5"
+                labelStyle={{ color: theme.colors.onSurface }}
+              />
+              <RadioButton.Item
+                label="2x (Very Fast)"
+                value="2"
+                labelStyle={{ color: theme.colors.onSurface }}
+              />
+            </RadioButton.Group>
 
-          {/* Pitch Control */}
-          <Text
-            variant="titleSmall"
-            style={[styles.sectionTitle, { color: theme.colors.onSurface }]}
-          >
-            Pitch
-          </Text>
-          <RadioButton.Group
-            onValueChange={handlePitchChange}
-            value={pitch.toString()}
-          >
-            <RadioButton.Item
-              label="0.5 (Very Low)"
-              value="0.5"
-              labelStyle={{ color: theme.colors.onSurface }}
-            />
-            <RadioButton.Item
-              label="0.75 (Low)"
-              value="0.75"
-              labelStyle={{ color: theme.colors.onSurface }}
-            />
-            <RadioButton.Item
-              label="1.0 (Normal)"
-              value="1"
-              labelStyle={{ color: theme.colors.onSurface }}
-            />
-            <RadioButton.Item
-              label="1.25 (Slightly High)"
-              value="1.25"
-              labelStyle={{ color: theme.colors.onSurface }}
-            />
-            <RadioButton.Item
-              label="1.5 (High)"
-              value="1.5"
-              labelStyle={{ color: theme.colors.onSurface }}
-            />
-            <RadioButton.Item
-              label="2.0 (Very High)"
-              value="2"
-              labelStyle={{ color: theme.colors.onSurface }}
-            />
-          </RadioButton.Group>
-        </List.Section>
+            {/* Pitch Control */}
+            <Text
+              variant="titleSmall"
+              style={[styles.sectionTitle, { color: theme.colors.onSurface }]}
+            >
+              Pitch
+            </Text>
+            <RadioButton.Group
+              onValueChange={handlePitchChange}
+              value={pitch.toString()}
+            >
+              <RadioButton.Item
+                label="0.5 (Very Low)"
+                value="0.5"
+                labelStyle={{ color: theme.colors.onSurface }}
+              />
+              <RadioButton.Item
+                label="0.75 (Low)"
+                value="0.75"
+                labelStyle={{ color: theme.colors.onSurface }}
+              />
+              <RadioButton.Item
+                label="1.0 (Normal)"
+                value="1"
+                labelStyle={{ color: theme.colors.onSurface }}
+              />
+              <RadioButton.Item
+                label="1.25 (Slightly High)"
+                value="1.25"
+                labelStyle={{ color: theme.colors.onSurface }}
+              />
+              <RadioButton.Item
+                label="1.5 (High)"
+                value="1.5"
+                labelStyle={{ color: theme.colors.onSurface }}
+              />
+              <RadioButton.Item
+                label="2.0 (Very High)"
+                value="2"
+                labelStyle={{ color: theme.colors.onSurface }}
+              />
+            </RadioButton.Group>
+          </List.Section>
+        )}
       </ScrollView>
 
       {/* Voice Selection Bottom Sheet */}
