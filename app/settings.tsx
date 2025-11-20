@@ -15,14 +15,16 @@ import { useRouter } from "expo-router";
 import { useThemeStore, ThemeMode } from "@/store/themeStore";
 import { useUserPreferencesStore } from "@/store/userPreferencesStore";
 import { useAudioPlayerStore } from "@/store/audioPlayerStore";
-import { BIBLE_TRANSLATIONS, FONT_SIZES } from "@/constants/translations";
+import { FONT_SIZES } from "@/constants/translations";
 import { useFeatureFlag } from "posthog-react-native";
+import { useBibleTranslations } from "@/hooks/useBibleTranslations";
 
 export default function SettingsScreen() {
   const router = useRouter();
   const theme = usePaperTheme();
   const { themeMode, setThemeMode } = useThemeStore();
   const showAudioPlayer = useFeatureFlag("audio-player") ?? false;
+  const bibleTranslations = useBibleTranslations();
   const {
     fontSize,
     setFontSize,
@@ -137,7 +139,7 @@ export default function SettingsScreen() {
             onValueChange={handleTranslationChange}
             value={preferredTranslation}
           >
-            {BIBLE_TRANSLATIONS.map((translation) => (
+            {bibleTranslations.map((translation) => (
               <View key={translation.code}>
                 <RadioButton.Item
                   label={translation.name}
