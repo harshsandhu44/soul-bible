@@ -10,7 +10,8 @@ import { useAudioPlayerStore } from "../store/audioPlayerStore";
 
 export default function RootLayout() {
   const systemColorScheme = useColorScheme();
-  const { isDarkMode, setIsDarkMode, themeMode, loadThemePreferences } = useThemeStore();
+  const { isDarkMode, setIsDarkMode, themeMode, loadThemePreferences } =
+    useThemeStore();
   const { hasCompletedOnboarding, isLoading, loadPreferences } =
     useUserPreferencesStore();
   const { loadReadingData, isLoading: isReadingDataLoading } =
@@ -34,7 +35,12 @@ export default function RootLayout() {
       ]);
     };
     initializeStores();
-  }, [loadPreferences, loadReadingData, loadThemePreferences, loadAvailableVoices]);
+  }, [
+    loadPreferences,
+    loadReadingData,
+    loadThemePreferences,
+    loadAvailableVoices,
+  ]);
 
   // Sync with system theme only when themeMode is "system"
   useEffect(() => {
@@ -56,7 +62,10 @@ export default function RootLayout() {
       appState.current = nextAppState;
     };
 
-    const subscription = AppState.addEventListener("change", handleAppStateChange);
+    const subscription = AppState.addEventListener(
+      "change",
+      handleAppStateChange,
+    );
 
     return () => {
       subscription.remove();
@@ -98,27 +107,12 @@ export default function RootLayout() {
           contentStyle: {
             backgroundColor: theme.colors.background,
           },
+          headerShown: false,
         }}
       >
-        <Stack.Screen
-          name="(tabs)"
-          options={{
-            headerShown: false,
-          }}
-        />
-        <Stack.Screen
-          name="onboarding"
-          options={{
-            headerShown: false,
-          }}
-        />
-        <Stack.Screen
-          name="settings"
-          options={{
-            presentation: "modal",
-            headerShown: false,
-          }}
-        />
+        <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="onboarding" />
+        <Stack.Screen name="settings" />
       </Stack>
     </PaperProvider>
   );
