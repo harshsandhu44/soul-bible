@@ -7,6 +7,7 @@ import { useThemeStore } from "../store/themeStore";
 import { useUserPreferencesStore } from "../store/userPreferencesStore";
 import { useBibleReadingStore } from "../store/bibleReadingStore";
 import { useAudioPlayerStore } from "../store/audioPlayerStore";
+import { PostHogProvider } from "../services/PostHog";
 
 export default function RootLayout() {
   const systemColorScheme = useColorScheme();
@@ -97,23 +98,25 @@ export default function RootLayout() {
   const theme = isDarkMode ? darkTheme : lightTheme;
 
   return (
-    <PaperProvider theme={theme}>
-      <Stack
-        screenOptions={{
-          headerStyle: {
-            backgroundColor: theme.colors.surface,
-          },
-          headerTintColor: theme.colors.onSurface,
-          contentStyle: {
-            backgroundColor: theme.colors.background,
-          },
-          headerShown: false,
-        }}
-      >
-        <Stack.Screen name="(tabs)" />
-        <Stack.Screen name="onboarding" />
-        <Stack.Screen name="settings" />
-      </Stack>
-    </PaperProvider>
+    <PostHogProvider>
+      <PaperProvider theme={theme}>
+        <Stack
+          screenOptions={{
+            headerStyle: {
+              backgroundColor: theme.colors.surface,
+            },
+            headerTintColor: theme.colors.onSurface,
+            contentStyle: {
+              backgroundColor: theme.colors.background,
+            },
+            headerShown: false,
+          }}
+        >
+          <Stack.Screen name="(tabs)" />
+          <Stack.Screen name="onboarding" />
+          <Stack.Screen name="settings" />
+        </Stack>
+      </PaperProvider>
+    </PostHogProvider>
   );
 }
