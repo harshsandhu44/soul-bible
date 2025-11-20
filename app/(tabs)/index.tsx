@@ -16,10 +16,12 @@ import {
 } from "@/services/bibleService";
 import { useUserPreferencesStore } from "@/store/userPreferencesStore";
 import { useBibleReadingStore } from "@/store/bibleReadingStore";
+import { useFeatureFlags } from "posthog-react-native";
 
 export default function Index() {
   const theme = usePaperTheme();
   const router = useRouter();
+  const featureFlags = useFeatureFlags();
   const { preferredTranslation } = useUserPreferencesStore();
   const { lastBook, lastChapter } = useBibleReadingStore();
   const [verse, setVerse] = useState<BibleVerse | null>(null);
@@ -27,6 +29,8 @@ export default function Index() {
 
   const books = getBibleBooks();
   const lastBookData = lastBook ? books.find((b) => b.slug === lastBook) : null;
+
+  console.info("[FEATURE FLAGS]", featureFlags);
 
   const handleGetVerse = async () => {
     setLoading(true);

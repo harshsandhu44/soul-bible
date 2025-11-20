@@ -20,6 +20,7 @@ import { useBibleReadingStore } from "@/store/bibleReadingStore";
 import { useAudioPlayerStore } from "@/store/audioPlayerStore";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import AudioPlayer from "@/components/AudioPlayer";
+import { useFeatureFlag } from "posthog-react-native";
 
 export default function ChapterReaderScreen() {
   const theme = usePaperTheme();
@@ -37,6 +38,7 @@ export default function ChapterReaderScreen() {
     removeBookmark,
     isChapterBookmarked,
   } = useBibleReadingStore();
+  const showAudioPlayer = useFeatureFlag("audio-player") ?? false;
   const { stopPlayback } = useAudioPlayerStore();
 
   const [chapterData, setChapterData] = useState<BibleChapter | null>(null);
@@ -93,7 +95,7 @@ export default function ChapterReaderScreen() {
         // This cleanup function runs when screen loses focus
         stopPlayback();
       };
-    }, [stopPlayback])
+    }, [stopPlayback]),
   );
 
   const handleBookmarkToggle = async () => {
@@ -175,11 +177,13 @@ export default function ChapterReaderScreen() {
     <View
       style={[styles.container, { backgroundColor: theme.colors.background }]}
     >
-      <AudioPlayer
-        chapterText={chapterData.text}
-        book={book}
-        chapter={chapterNum}
-      />
+      {showAudioPlayer && (
+        <AudioPlayer
+          chapterText={chapterData.text}
+          book={book}
+          chapter={chapterNum}
+        />
+      )}
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}

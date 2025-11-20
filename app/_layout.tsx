@@ -2,6 +2,8 @@ import { Stack, usePathname, useRouter, useSegments } from "expo-router";
 import { PaperProvider } from "react-native-paper";
 import { useEffect, useRef } from "react";
 import { useColorScheme, AppState, AppStateStatus } from "react-native";
+import { PostHogProvider } from "posthog-react-native";
+import Constants from "expo-constants";
 import { lightTheme, darkTheme } from "../constants/theme";
 import { useThemeStore } from "../store/themeStore";
 import { useUserPreferencesStore } from "../store/userPreferencesStore";
@@ -96,24 +98,34 @@ export default function RootLayout() {
 
   const theme = isDarkMode ? darkTheme : lightTheme;
 
+  const posthogApiKey = Constants.expoConfig?.extra?.posthogApiKey;
+  const posthogHost = Constants.expoConfig?.extra?.posthogHost;
+
   return (
-    <PaperProvider theme={theme}>
-      <Stack
-        screenOptions={{
-          headerStyle: {
-            backgroundColor: theme.colors.surface,
-          },
-          headerTintColor: theme.colors.onSurface,
-          contentStyle: {
-            backgroundColor: theme.colors.background,
-          },
-          headerShown: false,
-        }}
-      >
-        <Stack.Screen name="(tabs)" />
-        <Stack.Screen name="onboarding" />
-        <Stack.Screen name="settings" />
-      </Stack>
-    </PaperProvider>
+    <PostHogProvider
+      apiKey={posthogApiKey}
+      options={{
+        host: posthogHost,
+      }}
+    >
+      <PaperProvider theme={theme}>
+        <Stack
+          screenOptions={{
+            headerStyle: {
+              backgroundColor: theme.colors.surface,
+            },
+            headerTintColor: theme.colors.onSurface,
+            contentStyle: {
+              backgroundColor: theme.colors.background,
+            },
+            headerShown: false,
+          }}
+        >
+          <Stack.Screen name="(tabs)" />
+          <Stack.Screen name="onboarding" />
+          <Stack.Screen name="settings" />
+        </Stack>
+      </PaperProvider>
+    </PostHogProvider>
   );
 }
