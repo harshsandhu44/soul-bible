@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import {
@@ -8,6 +8,8 @@ import {
   Text,
   Divider,
   useTheme as usePaperTheme,
+  Modal,
+  IconButton,
 } from "react-native-paper";
 import { useRouter } from "expo-router";
 import { useThemeStore, ThemeMode } from "@/store/themeStore";
@@ -19,8 +21,12 @@ export default function SettingsScreen() {
   const router = useRouter();
   const theme = usePaperTheme();
   const { themeMode, setThemeMode } = useThemeStore();
-  const { fontSize, setFontSize, preferredTranslation, setPreferredTranslation } =
-    useUserPreferencesStore();
+  const {
+    fontSize,
+    setFontSize,
+    preferredTranslation,
+    setPreferredTranslation,
+  } = useUserPreferencesStore();
   const {
     speed,
     pitch,
@@ -30,6 +36,8 @@ export default function SettingsScreen() {
     setPitch,
     setSelectedVoice,
   } = useAudioPlayerStore();
+
+  const [showVoiceSheet, setShowVoiceSheet] = useState(false);
 
   const handleThemeChange = (mode: ThemeMode) => {
     setThemeMode(mode);
@@ -53,6 +61,13 @@ export default function SettingsScreen() {
 
   const handleVoiceChange = (voiceId: string) => {
     setSelectedVoice(voiceId === "default" ? null : voiceId);
+    setShowVoiceSheet(false);
+  };
+
+  const getSelectedVoiceName = () => {
+    if (!selectedVoice) return "Default";
+    const voice = availableVoices.find((v) => v.identifier === selectedVoice);
+    return voice ? voice.name : "Default";
   };
 
   return (
@@ -60,10 +75,7 @@ export default function SettingsScreen() {
       style={[styles.container, { backgroundColor: theme.colors.background }]}
       edges={["bottom"]}
     >
-      <Appbar.Header
-        style={{ backgroundColor: theme.colors.surface }}
-        elevated
-      >
+      <Appbar.Header style={{ backgroundColor: theme.colors.surface }} elevated>
         <Appbar.BackAction onPress={() => router.back()} />
         <Appbar.Content title="Settings" />
       </Appbar.Header>
@@ -151,40 +163,14 @@ export default function SettingsScreen() {
           <List.Subheader>Audio Settings</List.Subheader>
 
           {/* Voice Selection */}
-          <Text
-            variant="titleSmall"
-            style={[styles.sectionTitle, { color: theme.colors.onSurface }]}
-          >
-            Voice
-          </Text>
-          <RadioButton.Group
-            onValueChange={handleVoiceChange}
-            value={selectedVoice || "default"}
-          >
-            <RadioButton.Item
-              label="Default"
-              value="default"
-              labelStyle={{ color: theme.colors.onSurface }}
-            />
-            {availableVoices.map((voice) => (
-              <View key={voice.identifier}>
-                <RadioButton.Item
-                  label={voice.name}
-                  value={voice.identifier}
-                  labelStyle={{ color: theme.colors.onSurface }}
-                />
-                <Text
-                  variant="bodySmall"
-                  style={[
-                    styles.voiceDescription,
-                    { color: theme.colors.onSurfaceVariant },
-                  ]}
-                >
-                  {voice.language} • {voice.quality}
-                </Text>
-              </View>
-            ))}
-          </RadioButton.Group>
+          <List.Item
+            title="Voice"
+            description={getSelectedVoiceName()}
+            left={(props) => <List.Icon {...props} icon="account-voice" />}
+            right={(props) => <List.Icon {...props} icon="chevron-right" />}
+            onPress={() => setShowVoiceSheet(true)}
+            style={{ backgroundColor: theme.colors.surface }}
+          />
 
           {/* Speed Control */}
           <Text
@@ -273,6 +259,58 @@ export default function SettingsScreen() {
           </RadioButton.Group>
         </List.Section>
       </ScrollView>
+
+      {/* Voice Selection Bottom Sheet */}
+      <Modal
+        visible={showVoiceSheet}
+        onDismiss={() => setShowVoiceSheet(false)}
+        contentContainerStyle={[
+          styles.bottomSheet,
+          { backgroundColor: theme.colors.surface },
+        ]}
+      >
+        <View style={styles.bottomSheetHeader}>
+          <Text variant="titleLarge" style={{ color: theme.colors.onSurface }}>
+            Select Voice
+          </Text>
+          <IconButton
+            icon="close"
+            size={24}
+            onPress={() => setShowVoiceSheet(false)}
+          />
+        </View>
+        <Divider />
+        <ScrollView style={styles.bottomSheetContent}>
+          <RadioButton.Group
+            onValueChange={handleVoiceChange}
+            value={selectedVoice || "default"}
+          >
+            <RadioButton.Item
+              label="Default"
+              value="default"
+              labelStyle={{ color: theme.colors.onSurface }}
+            />
+            {availableVoices.map((voice) => (
+              <View key={voice.identifier}>
+                <RadioButton.Item
+                  label={voice.name}
+                  value={voice.identifier}
+                  labelStyle={{ color: theme.colors.onSurface }}
+                />
+                <Text
+                  variant="bodySmall"
+                  style={[
+                    styles.voiceDescription,
+                    { color: theme.colors.onSurfaceVariant },
+                  ]}
+                >
+                  {voice.language} • {voice.quality}
+                </Text>
+              </View>
+            ))}
+          </RadioButton.Group>
+        </ScrollView>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -299,5 +337,26 @@ const styles = StyleSheet.create({
     marginTop: 16,
     marginBottom: 8,
     fontWeight: "600",
+  },
+  bottomSheet: {
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    maxHeight: "80%",
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+  },
+  bottomSheetHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingLeft: 24,
+    paddingRight: 8,
+    paddingTop: 16,
+    paddingBottom: 16,
+  },
+  bottomSheetContent: {
+    maxHeight: 500,
   },
 });
