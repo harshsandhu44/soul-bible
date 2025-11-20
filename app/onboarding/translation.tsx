@@ -10,46 +10,14 @@ import {
 } from "react-native-paper";
 import { useRouter } from "expo-router";
 import { useUserPreferencesStore } from "@/store/userPreferencesStore";
-
-interface Translation {
-  code: string;
-  name: string;
-  description: string;
-}
-
-const TRANSLATIONS: Translation[] = [
-  {
-    code: "kjv",
-    name: "King James Version (KJV)",
-    description: "Traditional English translation, eloquent and poetic",
-  },
-  {
-    code: "web",
-    name: "World English Bible (WEB)",
-    description: "Modern, easy-to-read public domain translation",
-  },
-  {
-    code: "asv",
-    name: "American Standard Version (ASV)",
-    description: "Balance between traditional and modern language",
-  },
-  {
-    code: "bbe",
-    name: "Bible in Basic English (BBE)",
-    description: "Simple vocabulary for easy understanding",
-  },
-  {
-    code: "darby",
-    name: "Darby Bible",
-    description: "Literal translation emphasizing accuracy",
-  },
-];
+import { useBibleTranslations } from "@/hooks/useBibleTranslations";
 
 export default function TranslationScreen() {
   const theme = usePaperTheme();
   const router = useRouter();
   const { setPreferredTranslation, setOnboardingComplete } =
     useUserPreferencesStore();
+  const bibleTranslations = useBibleTranslations();
 
   const [selectedTranslation, setSelectedTranslation] = useState("kjv");
 
@@ -93,7 +61,7 @@ export default function TranslationScreen() {
           onValueChange={(value) => setSelectedTranslation(value)}
           value={selectedTranslation}
         >
-          {TRANSLATIONS.map((translation) => (
+          {bibleTranslations.map((translation) => (
             <Card
               key={translation.code}
               style={[
