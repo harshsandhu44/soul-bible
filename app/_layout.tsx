@@ -2,12 +2,13 @@ import { Stack, usePathname, useRouter, useSegments } from "expo-router";
 import { PaperProvider } from "react-native-paper";
 import { useEffect, useRef } from "react";
 import { useColorScheme, AppState, AppStateStatus } from "react-native";
+import { PostHogProvider } from "posthog-react-native";
+import Constants from "expo-constants";
 import { lightTheme, darkTheme } from "../constants/theme";
 import { useThemeStore } from "../store/themeStore";
 import { useUserPreferencesStore } from "../store/userPreferencesStore";
 import { useBibleReadingStore } from "../store/bibleReadingStore";
 import { useAudioPlayerStore } from "../store/audioPlayerStore";
-import { PostHogProvider } from "../services/PostHog";
 
 export default function RootLayout() {
   const systemColorScheme = useColorScheme();
@@ -97,8 +98,16 @@ export default function RootLayout() {
 
   const theme = isDarkMode ? darkTheme : lightTheme;
 
+  const posthogApiKey = Constants.expoConfig?.extra?.posthogApiKey;
+  const posthogHost = Constants.expoConfig?.extra?.posthogHost;
+
   return (
-    <PostHogProvider>
+    <PostHogProvider
+      apiKey={posthogApiKey}
+      options={{
+        host: posthogHost,
+      }}
+    >
       <PaperProvider theme={theme}>
         <Stack
           screenOptions={{
