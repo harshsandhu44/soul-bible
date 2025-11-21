@@ -9,6 +9,7 @@ import { useThemeStore } from "../store/themeStore";
 import { useUserPreferencesStore } from "../store/userPreferencesStore";
 import { useBibleReadingStore } from "../store/bibleReadingStore";
 import { useAudioPlayerStore } from "../store/audioPlayerStore";
+import { useNotesStore } from "../store/notesStore";
 
 export default function RootLayout() {
   const systemColorScheme = useColorScheme();
@@ -19,6 +20,7 @@ export default function RootLayout() {
   const { loadReadingData, isLoading: isReadingDataLoading } =
     useBibleReadingStore();
   const { loadAvailableVoices, stopPlayback } = useAudioPlayerStore();
+  const { loadNotesData } = useNotesStore();
   const router = useRouter();
   const path = usePathname();
   const segments = useSegments();
@@ -34,6 +36,7 @@ export default function RootLayout() {
         loadReadingData(),
         loadThemePreferences(),
         loadAvailableVoices(),
+        loadNotesData(),
       ]);
     };
     initializeStores();
@@ -42,6 +45,7 @@ export default function RootLayout() {
     loadReadingData,
     loadThemePreferences,
     loadAvailableVoices,
+    loadNotesData,
   ]);
 
   // Sync with system theme only when themeMode is "system"
