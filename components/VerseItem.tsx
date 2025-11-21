@@ -1,11 +1,5 @@
-import React, { useState, useRef } from "react";
-import {
-  View,
-  Pressable,
-  StyleSheet,
-  GestureResponderEvent,
-  Dimensions,
-} from "react-native";
+import React, { useState } from "react";
+import { View, Pressable, StyleSheet } from "react-native";
 import {
   Text,
   useTheme as usePaperTheme,
@@ -41,9 +35,6 @@ export default function VerseItem({
 }: VerseItemProps) {
   const theme = usePaperTheme();
   const [menuVisible, setMenuVisible] = useState(false);
-  const [menuAnchor, setMenuAnchor] = useState({ x: 0, y: 0 });
-  const containerRef = useRef<View>(null);
-  const justOpenedRef = useRef(false);
 
   const verseNumber = parseInt(verse.reference, 10);
 
@@ -62,20 +53,8 @@ export default function VerseItem({
   );
   const { addHighlight, removeHighlight } = useNotesStore();
 
-  const handleLongPress = (event: GestureResponderEvent) => {
-    const { pageX, pageY } = event.nativeEvent;
-    const { width, height } = Dimensions.get("window");
-
-    // Clamp position to keep menu on screen
-    const clampedX = Math.min(Math.max(pageX, 20), width - 20);
-    const clampedY = Math.min(Math.max(pageY, 100), height - 200);
-
-    setMenuAnchor({ x: clampedX, y: clampedY });
-    justOpenedRef.current = true;
+  const handlePress = () => {
     setMenuVisible(true);
-    setTimeout(() => {
-      justOpenedRef.current = false;
-    }, 150);
   };
 
   const handleHighlight = async (color: HighlightColor) => {
@@ -100,65 +79,59 @@ export default function VerseItem({
   };
 
   return (
-    <>
-      <Pressable
-        onLongPress={handleLongPress}
-        delayLongPress={400}
-        style={({ pressed }) => [pressed && { opacity: 0.7 }]}
-      >
-        <View ref={containerRef} style={styles.verseContainer}>
-          <Text
-            style={[
-              styles.verseNumber,
-              {
-                color: highlight
-                  ? HIGHLIGHT_COLORS[highlight.color]
-                  : theme.colors.onBackground,
-                fontSize: fontSize * 0.75,
-              },
-            ]}
-          >
-            {verse.reference}
-          </Text>
-          <View style={styles.textContainer}>
+    <Menu
+      visible={menuVisible}
+      onDismiss={() => setMenuVisible(false)}
+      anchor={
+        <Pressable
+          onPress={handlePress}
+          style={({ pressed }) => [pressed && { opacity: 0.7 }]}
+        >
+          <View style={styles.verseContainer}>
             <Text
               style={[
-                styles.verseText,
+                styles.verseNumber,
                 {
                   color: highlight
                     ? HIGHLIGHT_COLORS[highlight.color]
-                    : theme.colors.onSurface,
-                  fontSize: fontSize,
-                  lineHeight: fontSize * lineSpacing,
-                  fontFamily: getFontFamily(),
+                    : theme.colors.onBackground,
+                  fontSize: fontSize * 0.75,
                 },
               ]}
             >
-              {verse.text}
+              {verse.reference}
             </Text>
-            {note && (
-              <IconButton
-                size={16}
-                icon="pencil"
-                onPress={() => onNotePress(verseNumber)}
-                hitSlop={8}
-                style={styles.noteButton}
-              />
-            )}
+            <View style={styles.textContainer}>
+              <Text
+                style={[
+                  styles.verseText,
+                  {
+                    color: highlight
+                      ? HIGHLIGHT_COLORS[highlight.color]
+                      : theme.colors.onSurface,
+                    fontSize: fontSize,
+                    lineHeight: fontSize * lineSpacing,
+                    fontFamily: getFontFamily(),
+                  },
+                ]}
+              >
+                {verse.text}
+              </Text>
+              {note && (
+                <IconButton
+                  size={16}
+                  icon="pencil"
+                  onPress={() => onNotePress(verseNumber)}
+                  hitSlop={8}
+                  style={styles.noteButton}
+                />
+              )}
+            </View>
           </View>
-        </View>
-      </Pressable>
-
-      <Menu
-        visible={menuVisible}
-        onDismiss={() => {
-          if (!justOpenedRef.current) {
-            setMenuVisible(false);
-          }
-        }}
-        anchor={menuAnchor}
-        contentStyle={{ backgroundColor: theme.colors.surface }}
-      >
+        </Pressable>
+      }
+      contentStyle={{ backgroundColor: theme.colors.surface }}
+    >
         <Menu.Item
           title="Add Note"
           leadingIcon="note-plus"
@@ -197,7 +170,6 @@ export default function VerseItem({
           </View>
         </View>
       </Menu>
-    </>
   );
 }
 
