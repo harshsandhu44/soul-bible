@@ -42,14 +42,18 @@ export default function VerseItem({
   const highlight = useNotesStore((state) =>
     state.highlights.find(
       (h) =>
-        h.book === book && h.chapter === chapter && h.verseNumber === verseNumber
-    )
+        h.book === book &&
+        h.chapter === chapter &&
+        h.verseNumber === verseNumber,
+    ),
   );
   const note = useNotesStore((state) =>
     state.notes.find(
       (n) =>
-        n.book === book && n.chapter === chapter && n.verseNumber === verseNumber
-    )
+        n.book === book &&
+        n.chapter === chapter &&
+        n.verseNumber === verseNumber,
+    ),
   );
   const { addHighlight, removeHighlight } = useNotesStore();
 
@@ -132,44 +136,39 @@ export default function VerseItem({
       }
       contentStyle={{ backgroundColor: theme.colors.surface }}
     >
+      <Menu.Item
+        title="Add Note"
+        leadingIcon="note-plus"
+        onPress={handleAddNote}
+      />
+      {highlight && (
         <Menu.Item
-          title="Add Note"
-          leadingIcon="note-plus"
-          onPress={handleAddNote}
+          title="Remove Highlight"
+          leadingIcon="marker-cancel"
+          onPress={handleRemoveHighlight}
         />
-        {highlight && (
-          <Menu.Item
-            title="Remove Highlight"
-            leadingIcon="marker-cancel"
-            onPress={handleRemoveHighlight}
-          />
-        )}
-        <View style={styles.colorSection}>
-          <Text
-            style={[
-              styles.colorLabel,
-              { color: theme.colors.onSurfaceVariant },
-            ]}
-          >
-            Highlight Color
-          </Text>
-          <View style={styles.colorRow}>
-            {(Object.keys(HIGHLIGHT_COLORS) as HighlightColor[]).map(
-              (color) => (
-                <Pressable
-                  key={color}
-                  style={[
-                    styles.colorOption,
-                    { backgroundColor: HIGHLIGHT_COLORS[color] },
-                    highlight?.color === color && styles.selectedColor,
-                  ]}
-                  onPress={() => handleHighlight(color)}
-                />
-              ),
-            )}
-          </View>
+      )}
+      <View style={styles.colorSection}>
+        <Text
+          style={[styles.colorLabel, { color: theme.colors.onSurfaceVariant }]}
+        >
+          Highlight Color
+        </Text>
+        <View style={styles.colorRow}>
+          {(Object.keys(HIGHLIGHT_COLORS) as HighlightColor[]).map((color) => (
+            <Pressable
+              key={color}
+              style={[
+                styles.colorOption,
+                { backgroundColor: HIGHLIGHT_COLORS[color] },
+                highlight?.color === color && styles.selectedColor,
+              ]}
+              onPress={() => handleHighlight(color)}
+            />
+          ))}
         </View>
-      </Menu>
+      </View>
+    </Menu>
   );
 }
 
@@ -180,6 +179,7 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
   },
   verseNumber: {
+    marginTop: 4,
     opacity: 0.5,
     minWidth: 24,
     fontWeight: "600",
@@ -188,13 +188,14 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: "row",
     alignItems: "flex-start",
+    justifyContent: "space-between",
   },
   verseText: {
     flex: 1,
     textAlign: "left",
   },
   noteButton: {
-    marginLeft: 4,
+    marginLeft: 8,
     marginTop: 2,
   },
   colorSection: {

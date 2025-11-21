@@ -79,7 +79,15 @@ export default function ChapterReaderScreen() {
       setLoading(true);
       setError(null);
       const data = await getChapter(book, chapterNum, preferredTranslation);
-      setChapterData(data);
+      // Clean verse text - remove unwanted line breaks
+      const cleanedData = {
+        ...data,
+        verses: data.verses.map((verse) => ({
+          ...verse,
+          text: verse.text.replace(/\n/g, " ").replace(/\s+/g, " ").trim(),
+        })),
+      };
+      setChapterData(cleanedData);
 
       // Add to history and update last position
       await addToHistory(book, chapterNum);
