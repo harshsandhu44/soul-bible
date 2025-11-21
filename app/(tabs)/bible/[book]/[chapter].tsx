@@ -30,7 +30,8 @@ export default function ChapterReaderScreen() {
     book: string;
     chapter: string;
   }>();
-  const { preferredTranslation, fontSize } = useUserPreferencesStore();
+  const { preferredTranslation, fontSize, fontFamily, lineSpacing } =
+    useUserPreferencesStore();
   const {
     setLastPosition,
     addToHistory,
@@ -210,7 +211,13 @@ export default function ChapterReaderScreen() {
                   {
                     color: theme.colors.onSurface,
                     fontSize: fontSize,
-                    lineHeight: fontSize * 1.78,
+                    lineHeight: fontSize * lineSpacing,
+                    fontFamily:
+                      fontFamily === "system"
+                        ? undefined
+                        : fontFamily === "serif"
+                          ? "Georgia"
+                          : "System",
                   },
                 ]}
               >
