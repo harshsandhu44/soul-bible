@@ -8,6 +8,9 @@ import {
   IconButton,
   Snackbar,
   Button,
+  Modal,
+  Portal,
+  TextInput,
 } from "react-native-paper";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import {
@@ -18,8 +21,10 @@ import {
 import { useUserPreferencesStore } from "@/store/userPreferencesStore";
 import { useBibleReadingStore } from "@/store/bibleReadingStore";
 import { useAudioPlayerStore } from "@/store/audioPlayerStore";
+import { useNotesStore } from "@/store/notesStore";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import AudioPlayer from "@/components/AudioPlayer";
+import VerseItem from "@/components/VerseItem";
 import { useFeatureFlag } from "posthog-react-native";
 
 export default function ChapterReaderScreen() {
@@ -30,7 +35,8 @@ export default function ChapterReaderScreen() {
     book: string;
     chapter: string;
   }>();
-  const { preferredTranslation, fontSize } = useUserPreferencesStore();
+  const { preferredTranslation, fontSize, fontFamily, lineSpacing } =
+    useUserPreferencesStore();
   const {
     setLastPosition,
     addToHistory,
@@ -41,11 +47,16 @@ export default function ChapterReaderScreen() {
   const showAudioPlayer = useFeatureFlag("audio-player") ?? false;
   const { stopPlayback } = useAudioPlayerStore();
 
+  const { getNote, addNote, updateNote, removeNote } = useNotesStore();
+
   const [chapterData, setChapterData] = useState<BibleChapter | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [snackbarVisible, setSnackbarVisible] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [noteModalVisible, setNoteModalVisible] = useState(false);
+  const [selectedVerse, setSelectedVerse] = useState<number | null>(null);
+  const [noteText, setNoteText] = useState("");
 
   const chapterNum = parseInt(chapter, 10);
   const isBookmarked = isChapterBookmarked(book, chapterNum);
@@ -68,7 +79,15 @@ export default function ChapterReaderScreen() {
       setLoading(true);
       setError(null);
       const data = await getChapter(book, chapterNum, preferredTranslation);
-      setChapterData(data);
+      // Clean verse text - remove unwanted line breaks
+      const cleanedData = {
+        ...data,
+        verses: data.verses.map((verse) => ({
+          ...verse,
+          text: verse.text.replace(/\n/g, " ").replace(/\s+/g, " ").trim(),
+        })),
+      };
+      setChapterData(cleanedData);
 
       // Add to history and update last position
       await addToHistory(book, chapterNum);
@@ -123,6 +142,35 @@ export default function ChapterReaderScreen() {
     if (hasNextChapter) {
       router.push(`/bible/${book}/${chapterNum + 1}`);
     }
+  };
+
+  const handleNotePress = (verseNumber: number) => {
+    setSelectedVerse(verseNumber);
+    const existingNote = getNote(book, chapterNum, verseNumber);
+    setNoteText(existingNote?.text || "");
+    setNoteModalVisible(true);
+  };
+
+  const handleSaveNote = async () => {
+    if (selectedVerse === null) return;
+
+    const existingNote = getNote(book, chapterNum, selectedVerse);
+    if (noteText.trim()) {
+      if (existingNote) {
+        await updateNote(book, chapterNum, selectedVerse, noteText.trim());
+      } else {
+        await addNote(book, chapterNum, selectedVerse, noteText.trim());
+      }
+      setSnackbarMessage("Note saved");
+    } else if (existingNote) {
+      await removeNote(book, chapterNum, selectedVerse);
+      setSnackbarMessage("Note removed");
+    }
+
+    setNoteModalVisible(false);
+    setSelectedVerse(null);
+    setNoteText("");
+    setSnackbarVisible(true);
   };
 
   if (loading) {
@@ -191,32 +239,16 @@ export default function ChapterReaderScreen() {
       >
         <View style={styles.textContainer}>
           {chapterData.verses.map((verse) => (
-            <View
+            <VerseItem
               key={verse.reference}
-              style={{ flexDirection: "row", gap: 8 }}
-            >
-              <Text
-                style={{
-                  color: theme.colors.onBackground,
-                  opacity: 0.5,
-                }}
-              >
-                {verse.reference}
-              </Text>
-              <Text
-                variant="bodyLarge"
-                style={[
-                  styles.chapterText,
-                  {
-                    color: theme.colors.onSurface,
-                    fontSize: fontSize,
-                    lineHeight: fontSize * 1.78,
-                  },
-                ]}
-              >
-                {verse.text}
-              </Text>
-            </View>
+              verse={verse}
+              book={book}
+              chapter={chapterNum}
+              fontSize={fontSize}
+              fontFamily={fontFamily}
+              lineSpacing={lineSpacing}
+              onNotePress={handleNotePress}
+            />
           ))}
         </View>
 
@@ -264,6 +296,41 @@ export default function ChapterReaderScreen() {
       >
         {snackbarMessage}
       </Snackbar>
+
+      <Portal>
+        <Modal
+          visible={noteModalVisible}
+          onDismiss={() => setNoteModalVisible(false)}
+          contentContainerStyle={[
+            styles.noteModal,
+            { backgroundColor: theme.colors.surface },
+          ]}
+        >
+          <Text
+            variant="titleMedium"
+            style={{ color: theme.colors.onSurface, marginBottom: 16 }}
+          >
+            {selectedVerse ? `Note for Verse ${selectedVerse}` : "Add Note"}
+          </Text>
+          <TextInput
+            mode="outlined"
+            multiline
+            numberOfLines={4}
+            value={noteText}
+            onChangeText={setNoteText}
+            placeholder="Write your note here..."
+            style={styles.noteInput}
+          />
+          <View style={styles.noteButtonRow}>
+            <Button mode="text" onPress={() => setNoteModalVisible(false)}>
+              Cancel
+            </Button>
+            <Button mode="contained" onPress={handleSaveNote}>
+              Save
+            </Button>
+          </View>
+        </Modal>
+      </Portal>
     </View>
   );
 }
@@ -327,5 +394,18 @@ const styles = StyleSheet.create({
   },
   snackbar: {
     marginBottom: 16,
+  },
+  noteModal: {
+    margin: 20,
+    padding: 20,
+    borderRadius: 12,
+  },
+  noteInput: {
+    marginBottom: 16,
+  },
+  noteButtonRow: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    gap: 8,
   },
 });

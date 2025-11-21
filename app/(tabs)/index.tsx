@@ -111,7 +111,7 @@ export default function Index() {
         <Divider style={styles.sectionDivider} />
 
         <Card style={styles.readingCard} elevation={3}>
-          <Card.Content>
+          <Card.Content style={styles.readingCardContainer}>
             <View style={styles.readingCardTextContainer}>
               <Text
                 variant="titleLarge"
@@ -124,10 +124,7 @@ export default function Index() {
               {lastBook && lastChapter && lastBookData && (
                 <Text
                   variant="bodyMedium"
-                  style={[
-                    styles.readingSubtitle,
-                    { color: theme.colors.onSurfaceVariant },
-                  ]}
+                  style={{ color: theme.colors.onSurfaceVariant }}
                 >
                   {lastBookData.name} Chapter {lastChapter}
                 </Text>
@@ -135,10 +132,7 @@ export default function Index() {
               {!lastBook && (
                 <Text
                   variant="bodyMedium"
-                  style={[
-                    styles.readingSubtitle,
-                    { color: theme.colors.onSurfaceVariant },
-                  ]}
+                  style={{ color: theme.colors.onSurfaceVariant }}
                 >
                   Begin your journey through the Bible
                 </Text>
@@ -148,7 +142,6 @@ export default function Index() {
               mode="contained"
               icon={lastBook ? "book-open-page-variant" : "book"}
               onPress={handleStartReading}
-              style={styles.readingButton}
             >
               {lastBook ? "Resume" : "Start"}
             </Button>
@@ -159,9 +152,19 @@ export default function Index() {
           <Button
             mode="contained-tonal"
             icon="bookmark"
+            contentStyle={{ paddingVertical: 6 }}
             onPress={() => router.push("/(tabs)/bookmarks")}
           >
-            View Bookmarks
+            Bookmarks
+          </Button>
+
+          <Button
+            mode="contained-tonal"
+            icon="cog"
+            contentStyle={{ paddingVertical: 6 }}
+            onPress={() => router.push("/settings")}
+          >
+            Settings
           </Button>
         </View>
       </ScrollView>
@@ -236,18 +239,20 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     marginTop: 8,
   },
+  readingCardContainer: {
+    rowGap: 8,
+    columnGap: 16,
+    flexWrap: "wrap",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+  },
   readingCardTextContainer: {
     marginBottom: 16,
+    gap: 4,
   },
   readingTitle: {
     fontWeight: "800",
-    marginBottom: 8,
-  },
-  readingSubtitle: {
-    lineHeight: 22,
-  },
-  readingButton: {
-    alignSelf: "flex-end",
   },
   sectionDivider: {
     marginVertical: 16,

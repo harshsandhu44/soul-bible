@@ -28,9 +28,15 @@ export default function SettingsScreen() {
   const {
     fontSize,
     setFontSize,
+    fontFamily,
+    setFontFamily,
+    lineSpacing,
+    setLineSpacing,
     preferredTranslation,
     setPreferredTranslation,
   } = useUserPreferencesStore();
+  type FontFamily = "system" | "serif" | "sans-serif";
+  type LineSpacing = 1.5 | 1.78 | 2.0;
   const {
     speed,
     pitch,
@@ -49,6 +55,14 @@ export default function SettingsScreen() {
 
   const handleFontSizeChange = (size: number) => {
     setFontSize(size);
+  };
+
+  const handleFontFamilyChange = (family: FontFamily) => {
+    setFontFamily(family);
+  };
+
+  const handleLineSpacingChange = (spacing: LineSpacing) => {
+    setLineSpacing(spacing);
   };
 
   const handleTranslationChange = (code: string) => {
@@ -127,6 +141,64 @@ export default function SettingsScreen() {
                 labelStyle={{ color: theme.colors.onSurface }}
               />
             ))}
+          </RadioButton.Group>
+        </List.Section>
+
+        <Divider />
+
+        {/* Font Family Section */}
+        <List.Section>
+          <List.Subheader>Font Style</List.Subheader>
+          <RadioButton.Group
+            onValueChange={(value) =>
+              handleFontFamilyChange(value as FontFamily)
+            }
+            value={fontFamily}
+          >
+            <RadioButton.Item
+              label="System Default"
+              value="system"
+              labelStyle={{ color: theme.colors.onSurface }}
+            />
+            <RadioButton.Item
+              label="Serif (Georgia)"
+              value="serif"
+              labelStyle={{ color: theme.colors.onSurface }}
+            />
+            <RadioButton.Item
+              label="Sans-serif"
+              value="sans-serif"
+              labelStyle={{ color: theme.colors.onSurface }}
+            />
+          </RadioButton.Group>
+        </List.Section>
+
+        <Divider />
+
+        {/* Line Spacing Section */}
+        <List.Section>
+          <List.Subheader>Line Spacing</List.Subheader>
+          <RadioButton.Group
+            onValueChange={(value) =>
+              handleLineSpacingChange(parseFloat(value) as LineSpacing)
+            }
+            value={lineSpacing.toString()}
+          >
+            <RadioButton.Item
+              label="Compact (1.5x)"
+              value="1.5"
+              labelStyle={{ color: theme.colors.onSurface }}
+            />
+            <RadioButton.Item
+              label="Normal (1.78x)"
+              value="1.78"
+              labelStyle={{ color: theme.colors.onSurface }}
+            />
+            <RadioButton.Item
+              label="Relaxed (2x)"
+              value="2"
+              labelStyle={{ color: theme.colors.onSurface }}
+            />
           </RadioButton.Group>
         </List.Section>
 
