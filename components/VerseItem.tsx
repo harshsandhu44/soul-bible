@@ -4,8 +4,14 @@ import {
   Pressable,
   StyleSheet,
   GestureResponderEvent,
+  Dimensions,
 } from "react-native";
-import { Text, useTheme as usePaperTheme, Menu } from "react-native-paper";
+import {
+  Text,
+  useTheme as usePaperTheme,
+  Menu,
+  IconButton,
+} from "react-native-paper";
 import { BibleVerse } from "@/services/bibleService";
 import {
   useNotesStore,
@@ -37,18 +43,39 @@ export default function VerseItem({
   const [menuVisible, setMenuVisible] = useState(false);
   const [menuAnchor, setMenuAnchor] = useState({ x: 0, y: 0 });
   const containerRef = useRef<View>(null);
+  const justOpenedRef = useRef(false);
 
   const verseNumber = parseInt(verse.reference, 10);
-  const { getHighlight, addHighlight, removeHighlight, getNote } =
-    useNotesStore();
 
-  const highlight = getHighlight(book, chapter, verseNumber);
-  const note = getNote(book, chapter, verseNumber);
+  // Use reactive selectors for proper UI updates
+  const highlight = useNotesStore((state) =>
+    state.highlights.find(
+      (h) =>
+        h.book === book && h.chapter === chapter && h.verseNumber === verseNumber
+    )
+  );
+  const note = useNotesStore((state) =>
+    state.notes.find(
+      (n) =>
+        n.book === book && n.chapter === chapter && n.verseNumber === verseNumber
+    )
+  );
+  const { addHighlight, removeHighlight } = useNotesStore();
 
   const handleLongPress = (event: GestureResponderEvent) => {
     const { pageX, pageY } = event.nativeEvent;
-    setMenuAnchor({ x: pageX, y: pageY });
+    const { width, height } = Dimensions.get("window");
+
+    // Clamp position to keep menu on screen
+    const clampedX = Math.min(Math.max(pageX, 20), width - 20);
+    const clampedY = Math.min(Math.max(pageY, 100), height - 200);
+
+    setMenuAnchor({ x: clampedX, y: clampedY });
+    justOpenedRef.current = true;
     setMenuVisible(true);
+    setTimeout(() => {
+      justOpenedRef.current = false;
+    }, 150);
   };
 
   const handleHighlight = async (color: HighlightColor) => {
@@ -110,13 +137,13 @@ export default function VerseItem({
               {verse.text}
             </Text>
             {note && (
-              <Pressable
+              <IconButton
+                size={16}
+                icon="pencil"
                 onPress={() => onNotePress(verseNumber)}
                 hitSlop={8}
                 style={styles.noteButton}
-              >
-                <Text style={styles.noteIndicator}>📝</Text>
-              </Pressable>
+              />
             )}
           </View>
         </View>
@@ -124,7 +151,11 @@ export default function VerseItem({
 
       <Menu
         visible={menuVisible}
-        onDismiss={() => setMenuVisible(false)}
+        onDismiss={() => {
+          if (!justOpenedRef.current) {
+            setMenuVisible(false);
+          }
+        }}
         anchor={menuAnchor}
         contentStyle={{ backgroundColor: theme.colors.surface }}
       >
@@ -142,22 +173,27 @@ export default function VerseItem({
         )}
         <View style={styles.colorSection}>
           <Text
-            style={[styles.colorLabel, { color: theme.colors.onSurfaceVariant }]}
+            style={[
+              styles.colorLabel,
+              { color: theme.colors.onSurfaceVariant },
+            ]}
           >
             Highlight Color
           </Text>
           <View style={styles.colorRow}>
-            {(Object.keys(HIGHLIGHT_COLORS) as HighlightColor[]).map((color) => (
-              <Pressable
-                key={color}
-                style={[
-                  styles.colorOption,
-                  { backgroundColor: HIGHLIGHT_COLORS[color] },
-                  highlight?.color === color && styles.selectedColor,
-                ]}
-                onPress={() => handleHighlight(color)}
-              />
-            ))}
+            {(Object.keys(HIGHLIGHT_COLORS) as HighlightColor[]).map(
+              (color) => (
+                <Pressable
+                  key={color}
+                  style={[
+                    styles.colorOption,
+                    { backgroundColor: HIGHLIGHT_COLORS[color] },
+                    highlight?.color === color && styles.selectedColor,
+                  ]}
+                  onPress={() => handleHighlight(color)}
+                />
+              ),
+            )}
           </View>
         </View>
       </Menu>
@@ -188,9 +224,6 @@ const styles = StyleSheet.create({
   noteButton: {
     marginLeft: 4,
     marginTop: 2,
-  },
-  noteIndicator: {
-    fontSize: 16,
   },
   colorSection: {
     paddingHorizontal: 16,
