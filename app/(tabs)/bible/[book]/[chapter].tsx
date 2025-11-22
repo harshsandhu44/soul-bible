@@ -45,6 +45,7 @@ export default function ChapterReaderScreen() {
     isChapterBookmarked,
   } = useBibleReadingStore();
   const showAudioPlayer = useFeatureFlag("audio-player") ?? false;
+  const notesEnabled = useFeatureFlag("verse-notes") ?? false;
   const { stopPlayback } = useAudioPlayerStore();
 
   const { getNote, addNote, updateNote, removeNote } = useNotesStore();
@@ -297,40 +298,42 @@ export default function ChapterReaderScreen() {
         {snackbarMessage}
       </Snackbar>
 
-      <Portal>
-        <Modal
-          visible={noteModalVisible}
-          onDismiss={() => setNoteModalVisible(false)}
-          contentContainerStyle={[
-            styles.noteModal,
-            { backgroundColor: theme.colors.surface },
-          ]}
-        >
-          <Text
-            variant="titleMedium"
-            style={{ color: theme.colors.onSurface, marginBottom: 16 }}
+      {notesEnabled && (
+        <Portal>
+          <Modal
+            visible={noteModalVisible}
+            onDismiss={() => setNoteModalVisible(false)}
+            contentContainerStyle={[
+              styles.noteModal,
+              { backgroundColor: theme.colors.surface },
+            ]}
           >
-            {selectedVerse ? `Note for Verse ${selectedVerse}` : "Add Note"}
-          </Text>
-          <TextInput
-            mode="outlined"
-            multiline
-            numberOfLines={4}
-            value={noteText}
-            onChangeText={setNoteText}
-            placeholder="Write your note here..."
-            style={styles.noteInput}
-          />
-          <View style={styles.noteButtonRow}>
-            <Button mode="text" onPress={() => setNoteModalVisible(false)}>
-              Cancel
-            </Button>
-            <Button mode="contained" onPress={handleSaveNote}>
-              Save
-            </Button>
-          </View>
-        </Modal>
-      </Portal>
+            <Text
+              variant="titleMedium"
+              style={{ color: theme.colors.onSurface, marginBottom: 16 }}
+            >
+              {selectedVerse ? `Note for Verse ${selectedVerse}` : "Add Note"}
+            </Text>
+            <TextInput
+              mode="outlined"
+              multiline
+              numberOfLines={4}
+              value={noteText}
+              onChangeText={setNoteText}
+              placeholder="Write your note here..."
+              style={styles.noteInput}
+            />
+            <View style={styles.noteButtonRow}>
+              <Button mode="text" onPress={() => setNoteModalVisible(false)}>
+                Cancel
+              </Button>
+              <Button mode="contained" onPress={handleSaveNote}>
+                Save
+              </Button>
+            </View>
+          </Modal>
+        </Portal>
+      )}
     </View>
   );
 }

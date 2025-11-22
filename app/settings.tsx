@@ -24,6 +24,8 @@ export default function SettingsScreen() {
   const theme = usePaperTheme();
   const { themeMode, setThemeMode } = useThemeStore();
   const showAudioPlayer = useFeatureFlag("audio-player") ?? false;
+  const fontFamilyEnabled = useFeatureFlag("font-family-selector") ?? false;
+  const lineSpacingEnabled = useFeatureFlag("line-spacing-selector") ?? false;
   const bibleTranslations = useBibleTranslations();
   const {
     fontSize,
@@ -144,63 +146,71 @@ export default function SettingsScreen() {
           </RadioButton.Group>
         </List.Section>
 
-        <Divider />
+        {fontFamilyEnabled && (
+          <>
+            <Divider />
 
-        {/* Font Family Section */}
-        <List.Section>
-          <List.Subheader>Font Style</List.Subheader>
-          <RadioButton.Group
-            onValueChange={(value) =>
-              handleFontFamilyChange(value as FontFamily)
-            }
-            value={fontFamily}
-          >
-            <RadioButton.Item
-              label="System Default"
-              value="system"
-              labelStyle={{ color: theme.colors.onSurface }}
-            />
-            <RadioButton.Item
-              label="Serif (Georgia)"
-              value="serif"
-              labelStyle={{ color: theme.colors.onSurface }}
-            />
-            <RadioButton.Item
-              label="Sans-serif"
-              value="sans-serif"
-              labelStyle={{ color: theme.colors.onSurface }}
-            />
-          </RadioButton.Group>
-        </List.Section>
+            {/* Font Family Section */}
+            <List.Section>
+              <List.Subheader>Font Style</List.Subheader>
+              <RadioButton.Group
+                onValueChange={(value) =>
+                  handleFontFamilyChange(value as FontFamily)
+                }
+                value={fontFamily}
+              >
+                <RadioButton.Item
+                  label="System Default"
+                  value="system"
+                  labelStyle={{ color: theme.colors.onSurface }}
+                />
+                <RadioButton.Item
+                  label="Serif (Georgia)"
+                  value="serif"
+                  labelStyle={{ color: theme.colors.onSurface }}
+                />
+                <RadioButton.Item
+                  label="Sans-serif"
+                  value="sans-serif"
+                  labelStyle={{ color: theme.colors.onSurface }}
+                />
+              </RadioButton.Group>
+            </List.Section>
+          </>
+        )}
 
-        <Divider />
+        {lineSpacingEnabled && (
+          <>
+            <Divider />
 
-        {/* Line Spacing Section */}
-        <List.Section>
-          <List.Subheader>Line Spacing</List.Subheader>
-          <RadioButton.Group
-            onValueChange={(value) =>
-              handleLineSpacingChange(parseFloat(value) as LineSpacing)
-            }
-            value={lineSpacing.toString()}
-          >
-            <RadioButton.Item
-              label="Compact (1.5x)"
-              value="1.5"
-              labelStyle={{ color: theme.colors.onSurface }}
-            />
-            <RadioButton.Item
-              label="Normal (1.78x)"
-              value="1.78"
-              labelStyle={{ color: theme.colors.onSurface }}
-            />
-            <RadioButton.Item
-              label="Relaxed (2x)"
-              value="2"
-              labelStyle={{ color: theme.colors.onSurface }}
-            />
-          </RadioButton.Group>
-        </List.Section>
+            {/* Line Spacing Section */}
+            <List.Section>
+              <List.Subheader>Line Spacing</List.Subheader>
+              <RadioButton.Group
+                onValueChange={(value) =>
+                  handleLineSpacingChange(parseFloat(value) as LineSpacing)
+                }
+                value={lineSpacing.toString()}
+              >
+                <RadioButton.Item
+                  label="Compact (1.5x)"
+                  value="1.5"
+                  labelStyle={{ color: theme.colors.onSurface }}
+                />
+                <RadioButton.Item
+                  label="Normal (1.78x)"
+                  value="1.78"
+                  labelStyle={{ color: theme.colors.onSurface }}
+                />
+                <RadioButton.Item
+                  label="Relaxed (2x)"
+                  value="2"
+                  labelStyle={{ color: theme.colors.onSurface }}
+                />
+              </RadioButton.Group>
+            </List.Section>
+          </>
+        )}
 
         <Divider />
 

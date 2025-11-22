@@ -13,6 +13,7 @@ import {
   HighlightColor,
 } from "@/store/notesStore";
 import { FontFamily, LineSpacing } from "@/store/userPreferencesStore";
+import { useFeatureFlag } from "posthog-react-native";
 
 interface VerseItemProps {
   verse: BibleVerse;
@@ -35,26 +36,32 @@ export default function VerseItem({
 }: VerseItemProps) {
   const theme = usePaperTheme();
   const [menuVisible, setMenuVisible] = useState(false);
+  const highlightingEnabled = useFeatureFlag("verse-highlighting") ?? false;
+  const notesEnabled = useFeatureFlag("verse-notes") ?? false;
 
   const verseNumber = parseInt(verse.reference, 10);
 
   // Use reactive selectors for proper UI updates
-  const highlight = useNotesStore((state) =>
-    state.highlights.find(
-      (h) =>
-        h.book === book &&
-        h.chapter === chapter &&
-        h.verseNumber === verseNumber,
-    ),
-  );
-  const note = useNotesStore((state) =>
-    state.notes.find(
-      (n) =>
-        n.book === book &&
-        n.chapter === chapter &&
-        n.verseNumber === verseNumber,
-    ),
-  );
+  const highlight = highlightingEnabled
+    ? useNotesStore((state) =>
+        state.highlights.find(
+          (h) =>
+            h.book === book &&
+            h.chapter === chapter &&
+            h.verseNumber === verseNumber,
+        ),
+      )
+    : undefined;
+  const note = notesEnabled
+    ? useNotesStore((state) =>
+        state.notes.find(
+          (n) =>
+            n.book === book &&
+            n.chapter === chapter &&
+            n.verseNumber === verseNumber,
+        ),
+      )
+    : undefined;
   const { addHighlight, removeHighlight } = useNotesStore();
 
   const handlePress = () => {
@@ -136,38 +143,47 @@ export default function VerseItem({
       }
       contentStyle={{ backgroundColor: theme.colors.surface }}
     >
-      <Menu.Item
-        title="Add Note"
-        leadingIcon="note-plus"
-        onPress={handleAddNote}
-      />
-      {highlight && (
+      {notesEnabled && (
+        <Menu.Item
+          title="Add Note"
+          leadingIcon="note-plus"
+          onPress={handleAddNote}
+        />
+      )}
+      {highlightingEnabled && highlight && (
         <Menu.Item
           title="Remove Highlight"
           leadingIcon="marker-cancel"
           onPress={handleRemoveHighlight}
         />
       )}
-      <View style={styles.colorSection}>
-        <Text
-          style={[styles.colorLabel, { color: theme.colors.onSurfaceVariant }]}
-        >
-          Highlight Color
-        </Text>
-        <View style={styles.colorRow}>
-          {(Object.keys(HIGHLIGHT_COLORS) as HighlightColor[]).map((color) => (
-            <Pressable
-              key={color}
-              style={[
-                styles.colorOption,
-                { backgroundColor: HIGHLIGHT_COLORS[color] },
-                highlight?.color === color && styles.selectedColor,
-              ]}
-              onPress={() => handleHighlight(color)}
-            />
-          ))}
+      {highlightingEnabled && (
+        <View style={styles.colorSection}>
+          <Text
+            style={[
+              styles.colorLabel,
+              { color: theme.colors.onSurfaceVariant },
+            ]}
+          >
+            Highlight Color
+          </Text>
+          <View style={styles.colorRow}>
+            {(Object.keys(HIGHLIGHT_COLORS) as HighlightColor[]).map(
+              (color) => (
+                <Pressable
+                  key={color}
+                  style={[
+                    styles.colorOption,
+                    { backgroundColor: HIGHLIGHT_COLORS[color] },
+                    highlight?.color === color && styles.selectedColor,
+                  ]}
+                  onPress={() => handleHighlight(color)}
+                />
+              ),
+            )}
+          </View>
         </View>
-      </View>
+      )}
     </Menu>
   );
 }
