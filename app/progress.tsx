@@ -10,6 +10,7 @@ import {
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useProgressStore } from "@/store/progressStore";
 import { useRouter } from "expo-router";
+import ReadingCalendar from "@/components/ReadingCalendar";
 
 // Format relative time
 const formatRelativeTime = (dateStr: string): string => {
@@ -307,6 +308,22 @@ export default function ProgressScreen() {
                   You're at your personal best! 🏆
                 </Text>
               )}
+          </Card.Content>
+        </Card>
+
+        {/* Reading Calendar Heatmap */}
+        <Card
+          style={[styles.card, { backgroundColor: theme.colors.surfaceVariant }]}
+          elevation={2}
+        >
+          <Card.Content>
+            <Text
+              variant="titleLarge"
+              style={[styles.cardTitle, { color: theme.colors.onSurface }]}
+            >
+              Reading Calendar
+            </Text>
+            <ReadingCalendar dailyProgress={dailyProgress} />
           </Card.Content>
         </Card>
 
