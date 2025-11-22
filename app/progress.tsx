@@ -45,11 +45,11 @@ export default function ProgressScreen() {
   // Calculate lifetime stats
   const lifetimeChapters = dailyProgress.reduce(
     (sum, p) => sum + p.chaptersRead,
-    0
+    0,
   );
   const lifetimeVerses = dailyProgress.reduce(
     (sum, p) => sum + p.versesRead,
-    0
+    0,
   );
   const daysActive = dailyProgress.length;
 
@@ -103,11 +103,7 @@ export default function ProgressScreen() {
           { backgroundColor: theme.colors.surfaceVariant },
         ]}
       >
-        <IconButton
-          icon="arrow-left"
-          size={24}
-          onPress={() => router.back()}
-        />
+        <IconButton icon="arrow-left" size={24} onPress={() => router.back()} />
         <Text
           variant="headlineSmall"
           style={[styles.headerTitle, { color: theme.colors.onSurface }]}
@@ -194,7 +190,10 @@ export default function ProgressScreen() {
 
         {/* Current Streak Card */}
         <Card
-          style={[styles.card, { backgroundColor: theme.colors.surfaceVariant }]}
+          style={[
+            styles.card,
+            { backgroundColor: theme.colors.surfaceVariant },
+          ]}
           elevation={2}
         >
           <Card.Content>
@@ -203,7 +202,9 @@ export default function ProgressScreen() {
                 name="fire"
                 size={32}
                 color={
-                  streakData.current > 0 ? "#FF6B35" : theme.colors.onSurfaceVariant
+                  streakData.current > 0
+                    ? "#FF6B35"
+                    : theme.colors.onSurfaceVariant
                 }
               />
               <Text
@@ -252,12 +253,9 @@ export default function ProgressScreen() {
             {streakData.current > 0 && (
               <Text
                 variant="bodyMedium"
-                style={[
-                  styles.motivationText,
-                  { color: theme.colors.primary },
-                ]}
+                style={[styles.motivationText, { color: theme.colors.primary }]}
               >
-                Keep it up! Don't break the chain! 🔥
+                Keep it up! Don&apos;t break the chain! 🔥
               </Text>
             )}
           </Card.Content>
@@ -265,7 +263,10 @@ export default function ProgressScreen() {
 
         {/* Best Streak Card */}
         <Card
-          style={[styles.card, { backgroundColor: theme.colors.surfaceVariant }]}
+          style={[
+            styles.card,
+            { backgroundColor: theme.colors.surfaceVariant },
+          ]}
           elevation={2}
         >
           <Card.Content>
@@ -305,7 +306,7 @@ export default function ProgressScreen() {
                     { color: theme.colors.secondary },
                   ]}
                 >
-                  You're at your personal best! 🏆
+                  You&apos;re at your personal best! 🏆
                 </Text>
               )}
           </Card.Content>
@@ -313,7 +314,10 @@ export default function ProgressScreen() {
 
         {/* Reading Calendar Heatmap */}
         <Card
-          style={[styles.card, { backgroundColor: theme.colors.surfaceVariant }]}
+          style={[
+            styles.card,
+            { backgroundColor: theme.colors.surfaceVariant },
+          ]}
           elevation={2}
         >
           <Card.Content>
@@ -329,7 +333,10 @@ export default function ProgressScreen() {
 
         {/* Weekly Breakdown */}
         <Card
-          style={[styles.card, { backgroundColor: theme.colors.surfaceVariant }]}
+          style={[
+            styles.card,
+            { backgroundColor: theme.colors.surfaceVariant },
+          ]}
           elevation={2}
         >
           <Card.Content>
@@ -402,7 +409,10 @@ export default function ProgressScreen() {
 
         {/* Monthly Summary */}
         <Card
-          style={[styles.card, { backgroundColor: theme.colors.surfaceVariant }]}
+          style={[
+            styles.card,
+            { backgroundColor: theme.colors.surfaceVariant },
+          ]}
           elevation={2}
         >
           <Card.Content>
@@ -526,10 +536,7 @@ export default function ProgressScreen() {
               />
               <Text
                 variant="headlineSmall"
-                style={[
-                  styles.emptyTitle,
-                  { color: theme.colors.onSurface },
-                ]}
+                style={[styles.emptyTitle, { color: theme.colors.onSurface }]}
               >
                 Start Your Journey
               </Text>
