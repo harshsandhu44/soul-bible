@@ -22,6 +22,7 @@ import { useUserPreferencesStore } from "@/store/userPreferencesStore";
 import { useBibleReadingStore } from "@/store/bibleReadingStore";
 import { useAudioPlayerStore } from "@/store/audioPlayerStore";
 import { useNotesStore } from "@/store/notesStore";
+import { useProgressStore } from "@/store/progressStore";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import AudioPlayer from "@/components/AudioPlayer";
 import VerseItem from "@/components/VerseItem";
@@ -44,6 +45,7 @@ export default function ChapterReaderScreen() {
     removeBookmark,
     isChapterBookmarked,
   } = useBibleReadingStore();
+  const { updateDailyProgress } = useProgressStore();
   const showAudioPlayer = useFeatureFlag("audio-player") ?? false;
   const notesEnabled = useFeatureFlag("verse-notes") ?? false;
   const { stopPlayback } = useAudioPlayerStore();
@@ -93,6 +95,9 @@ export default function ChapterReaderScreen() {
       // Add to history and update last position
       await addToHistory(book, chapterNum);
       await setLastPosition(book, chapterNum);
+
+      // Update daily progress (1 chapter, number of verses)
+      await updateDailyProgress(1, data.verses.length);
     } catch (err) {
       console.error("Error fetching chapter:", err);
       setError(
