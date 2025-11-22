@@ -9,6 +9,7 @@ import {
 export interface BookmarkListItemProps {
   bookName: string;
   chapter: number;
+  verse?: number;
   isRead: boolean;
   timestamp: number;
   onPress: () => void;
@@ -37,12 +38,15 @@ function formatRelativeTime(timestamp: number): string {
 export function BookmarkListItem({
   bookName,
   chapter,
+  verse,
   isRead,
   timestamp,
   onPress,
   onRemove,
 }: BookmarkListItemProps) {
   const theme = usePaperTheme();
+
+  const displayText = verse ? `${bookName} ${chapter}:${verse}` : `${bookName} ${chapter}`;
 
   return (
     <Pressable
@@ -61,7 +65,7 @@ export function BookmarkListItem({
             variant="titleMedium"
             style={[styles.title, { color: theme.colors.onSurface }]}
           >
-            {bookName} {chapter}
+            {displayText}
           </Text>
           <Text
             variant="bodySmall"

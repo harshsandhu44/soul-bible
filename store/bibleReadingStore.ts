@@ -31,8 +31,9 @@ type BibleReadingStore = {
   setLastPosition: (book: string, chapter: number) => Promise<void>;
   addToHistory: (book: string, chapter: number) => Promise<void>;
   addBookmark: (bookmark: Bookmark) => Promise<void>;
-  removeBookmark: (book: string, chapter: number) => Promise<void>;
+  removeBookmark: (book: string, chapter: number, verse?: number) => Promise<void>;
   isChapterBookmarked: (book: string, chapter: number) => boolean;
+  isVerseBookmarked: (book: string, chapter: number, verse: number) => boolean;
   hasReadChapter: (book: string, chapter: number) => boolean;
   loadReadingData: () => Promise<void>;
 };
@@ -88,10 +89,23 @@ export const useBibleReadingStore = create<BibleReadingStore>((set, get) => ({
   addBookmark: async (bookmark: Bookmark) => {
     try {
       const state = get();
-      // Remove existing bookmark for this chapter if exists
-      const filteredBookmarks = state.bookmarks.filter(
-        (b) => !(b.book === bookmark.book && b.chapter === bookmark.chapter)
-      );
+      // Remove existing bookmark for this chapter/verse if exists
+      const filteredBookmarks = state.bookmarks.filter((b) => {
+        // If verse is specified, match exact verse
+        if (bookmark.verse !== undefined) {
+          return !(
+            b.book === bookmark.book &&
+            b.chapter === bookmark.chapter &&
+            b.verse === bookmark.verse
+          );
+        }
+        // Otherwise match chapter-level bookmark
+        return !(
+          b.book === bookmark.book &&
+          b.chapter === bookmark.chapter &&
+          b.verse === undefined
+        );
+      });
 
       const newBookmarks = [...filteredBookmarks, bookmark];
 
@@ -105,12 +119,21 @@ export const useBibleReadingStore = create<BibleReadingStore>((set, get) => ({
     }
   },
 
-  removeBookmark: async (book: string, chapter: number) => {
+  removeBookmark: async (book: string, chapter: number, verse?: number) => {
     try {
       const state = get();
-      const filteredBookmarks = state.bookmarks.filter(
-        (b) => !(b.book === book && b.chapter === chapter)
-      );
+      const filteredBookmarks = state.bookmarks.filter((b) => {
+        // If verse is specified, match exact verse
+        if (verse !== undefined) {
+          return !(b.book === book && b.chapter === chapter && b.verse === verse);
+        }
+        // Otherwise remove chapter-level bookmark only
+        return !(
+          b.book === book &&
+          b.chapter === chapter &&
+          b.verse === undefined
+        );
+      });
 
       await AsyncStorage.setItem(
         STORAGE_KEYS.BOOKMARKS,
@@ -125,7 +148,17 @@ export const useBibleReadingStore = create<BibleReadingStore>((set, get) => ({
   isChapterBookmarked: (book: string, chapter: number) => {
     const state = get();
     return state.bookmarks.some(
-      (b) => b.book === book && b.chapter === chapter
+      (b) => b.book === book && b.chapter === chapter && b.verse === undefined
+    );
+  },
+
+  isVerseBookmarked: (book: string, chapter: number, verse: number) => {
+    const state = get();
+    return state.bookmarks.some(
+      (b) =>
+        b.book === book &&
+        b.chapter === chapter &&
+        b.verse === verse
     );
   },
 

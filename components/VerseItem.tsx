@@ -18,6 +18,7 @@ import {
 import { FontFamily, LineSpacing } from "@/store/userPreferencesStore";
 import { useFeatureFlag } from "posthog-react-native";
 import TranslationComparisonModal from "@/components/TranslationComparisonModal";
+import { useBibleReadingStore } from "@/store/bibleReadingStore";
 
 interface VerseItemProps {
   verse: BibleVerse;
@@ -73,10 +74,13 @@ export default function VerseItem({
     ),
   );
   const { addHighlight, removeHighlight } = useNotesStore();
+  const { addBookmark, removeBookmark, isVerseBookmarked } =
+    useBibleReadingStore();
 
   // Conditionally display based on feature flags
   const highlight = highlightingEnabled ? highlightData : undefined;
   const note = notesEnabled ? noteData : undefined;
+  const isBookmarked = isVerseBookmarked(book, chapter, verseNumber);
 
   const handlePress = () => {
     setMenuVisible(true);
@@ -133,6 +137,29 @@ export default function VerseItem({
   const handleCompareTranslations = () => {
     setMenuVisible(false);
     setComparisonModalVisible(true);
+  };
+
+  const handleToggleVerseBookmark = async () => {
+    setMenuVisible(false);
+    try {
+      if (isBookmarked) {
+        await removeBookmark(book, chapter, verseNumber);
+        setSnackbarMessage("Verse bookmark removed");
+      } else {
+        await addBookmark({
+          book,
+          chapter,
+          verse: verseNumber,
+          timestamp: Date.now(),
+        });
+        setSnackbarMessage("Verse bookmarked");
+      }
+      setSnackbarVisible(true);
+    } catch (error) {
+      console.error("Error toggling verse bookmark:", error);
+      setSnackbarMessage("Failed to bookmark verse");
+      setSnackbarVisible(true);
+    }
   };
 
   const getFontFamily = () => {
@@ -210,6 +237,11 @@ export default function VerseItem({
         title="Compare Translations"
         leadingIcon="book-multiple"
         onPress={handleCompareTranslations}
+      />
+      <Menu.Item
+        title={isBookmarked ? "Remove Verse Bookmark" : "Bookmark Verse"}
+        leadingIcon={isBookmarked ? "bookmark-remove" : "bookmark-plus"}
+        onPress={handleToggleVerseBookmark}
       />
       {notesEnabled && (
         <Menu.Item
