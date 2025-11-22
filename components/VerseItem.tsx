@@ -42,27 +42,28 @@ export default function VerseItem({
   const verseNumber = parseInt(verse.reference, 10);
 
   // Use reactive selectors for proper UI updates
-  const highlight = highlightingEnabled
-    ? useNotesStore((state) =>
-        state.highlights.find(
-          (h) =>
-            h.book === book &&
-            h.chapter === chapter &&
-            h.verseNumber === verseNumber,
-        ),
-      )
-    : undefined;
-  const note = notesEnabled
-    ? useNotesStore((state) =>
-        state.notes.find(
-          (n) =>
-            n.book === book &&
-            n.chapter === chapter &&
-            n.verseNumber === verseNumber,
-        ),
-      )
-    : undefined;
+  // Always call hooks (Rules of Hooks), conditionally use results
+  const highlightData = useNotesStore((state) =>
+    state.highlights.find(
+      (h) =>
+        h.book === book &&
+        h.chapter === chapter &&
+        h.verseNumber === verseNumber,
+    ),
+  );
+  const noteData = useNotesStore((state) =>
+    state.notes.find(
+      (n) =>
+        n.book === book &&
+        n.chapter === chapter &&
+        n.verseNumber === verseNumber,
+    ),
+  );
   const { addHighlight, removeHighlight } = useNotesStore();
+
+  // Conditionally display based on feature flags
+  const highlight = highlightingEnabled ? highlightData : undefined;
+  const note = notesEnabled ? noteData : undefined;
 
   const handlePress = () => {
     setMenuVisible(true);
