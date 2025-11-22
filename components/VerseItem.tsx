@@ -5,8 +5,11 @@ import {
   useTheme as usePaperTheme,
   Menu,
   IconButton,
+  Snackbar,
 } from "react-native-paper";
-import { BibleVerse } from "@/services/bibleService";
+import * as Sharing from "expo-sharing";
+import * as Clipboard from "expo-clipboard";
+import { BibleVerse, getBibleBooks } from "@/services/bibleService";
 import {
   useNotesStore,
   HIGHLIGHT_COLORS,
@@ -36,10 +39,18 @@ export default function VerseItem({
 }: VerseItemProps) {
   const theme = usePaperTheme();
   const [menuVisible, setMenuVisible] = useState(false);
+  const [snackbarVisible, setSnackbarVisible] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
   const highlightingEnabled = useFeatureFlag("verse-highlighting") ?? false;
   const notesEnabled = useFeatureFlag("verse-notes") ?? false;
 
   const verseNumber = parseInt(verse.reference, 10);
+
+  // Get book name from slug
+  const getBookName = () => {
+    const bookData = getBibleBooks().find((b) => b.slug === book);
+    return bookData?.name || book;
+  };
 
   // Use reactive selectors for proper UI updates
   // Always call hooks (Rules of Hooks), conditionally use results
@@ -84,6 +95,39 @@ export default function VerseItem({
     onNotePress(verseNumber);
   };
 
+  const handleShare = async () => {
+    setMenuVisible(false);
+    try {
+      const shareText = `"${verse.text}" - ${getBookName()} ${chapter}:${verseNumber} (${verse.translation})`;
+
+      if (await Sharing.isAvailableAsync()) {
+        // Create a temporary text file for sharing
+        await Sharing.shareAsync("data:text/plain," + encodeURIComponent(shareText));
+      } else {
+        setSnackbarMessage("Sharing is not available on this device");
+        setSnackbarVisible(true);
+      }
+    } catch (error) {
+      console.error("Error sharing verse:", error);
+      setSnackbarMessage("Failed to share verse");
+      setSnackbarVisible(true);
+    }
+  };
+
+  const handleCopy = async () => {
+    setMenuVisible(false);
+    try {
+      const copyText = `"${verse.text}" - ${getBookName()} ${chapter}:${verseNumber} (${verse.translation})`;
+      await Clipboard.setStringAsync(copyText);
+      setSnackbarMessage("Verse copied to clipboard");
+      setSnackbarVisible(true);
+    } catch (error) {
+      console.error("Error copying verse:", error);
+      setSnackbarMessage("Failed to copy verse");
+      setSnackbarVisible(true);
+    }
+  };
+
   const getFontFamily = () => {
     if (fontFamily === "system") return undefined;
     if (fontFamily === "serif") return "Georgia";
@@ -91,59 +135,70 @@ export default function VerseItem({
   };
 
   return (
-    <Menu
-      visible={menuVisible}
-      onDismiss={() => setMenuVisible(false)}
-      anchor={
-        <Pressable
-          onPress={handlePress}
-          style={({ pressed }) => [pressed && { opacity: 0.7 }]}
-        >
-          <View style={styles.verseContainer}>
-            <Text
-              style={[
-                styles.verseNumber,
-                {
-                  color: highlight
-                    ? HIGHLIGHT_COLORS[highlight.color]
-                    : theme.colors.onBackground,
-                  fontSize: fontSize * 0.75,
-                },
-              ]}
-            >
-              {verse.reference}
-            </Text>
-            <View style={styles.textContainer}>
+    <>
+      <Menu
+        visible={menuVisible}
+        onDismiss={() => setMenuVisible(false)}
+        anchor={
+          <Pressable
+            onPress={handlePress}
+            style={({ pressed }) => [pressed && { opacity: 0.7 }]}
+          >
+            <View style={styles.verseContainer}>
               <Text
                 style={[
-                  styles.verseText,
+                  styles.verseNumber,
                   {
                     color: highlight
                       ? HIGHLIGHT_COLORS[highlight.color]
-                      : theme.colors.onSurface,
-                    fontSize: fontSize,
-                    lineHeight: fontSize * lineSpacing,
-                    fontFamily: getFontFamily(),
+                      : theme.colors.onBackground,
+                    fontSize: fontSize * 0.75,
                   },
                 ]}
               >
-                {verse.text}
+                {verse.reference}
               </Text>
-              {note && (
-                <IconButton
-                  size={16}
-                  icon="pencil"
-                  onPress={() => onNotePress(verseNumber)}
-                  hitSlop={8}
-                  style={styles.noteButton}
-                />
-              )}
+              <View style={styles.textContainer}>
+                <Text
+                  style={[
+                    styles.verseText,
+                    {
+                      color: highlight
+                        ? HIGHLIGHT_COLORS[highlight.color]
+                        : theme.colors.onSurface,
+                      fontSize: fontSize,
+                      lineHeight: fontSize * lineSpacing,
+                      fontFamily: getFontFamily(),
+                    },
+                  ]}
+                >
+                  {verse.text}
+                </Text>
+                {note && (
+                  <IconButton
+                    size={16}
+                    icon="pencil"
+                    onPress={() => onNotePress(verseNumber)}
+                    hitSlop={8}
+                    style={styles.noteButton}
+                  />
+                )}
+              </View>
             </View>
-          </View>
-        </Pressable>
-      }
-      contentStyle={{ backgroundColor: theme.colors.surface }}
-    >
+          </Pressable>
+        }
+        contentStyle={{ backgroundColor: theme.colors.surface }}
+      >
+      <Menu.Item
+        title="Share"
+        leadingIcon="share-variant"
+        onPress={handleShare}
+      />
+      <Menu.Item
+        title="Copy"
+        leadingIcon="content-copy"
+        onPress={handleCopy}
+      />
       {notesEnabled && (
         <Menu.Item
           title="Add Note"
@@ -185,7 +240,19 @@ export default function VerseItem({
           </View>
         </View>
       )}
-    </Menu>
+      </Menu>
+      <Snackbar
+        visible={snackbarVisible}
+        onDismiss={() => setSnackbarVisible(false)}
+        duration={2000}
+        action={{
+          label: "OK",
+          onPress: () => setSnackbarVisible(false),
+        }}
+      >
+        {snackbarMessage}
+      </Snackbar>
+    </>
   );
 }
 
