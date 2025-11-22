@@ -21,24 +21,9 @@ export const BIBLE_TRANSLATIONS: BibleTranslation[] = [
     description: "ASV - 1901 American revision of KJV",
   },
   {
-    code: "ylt",
-    name: "Young's Literal Translation",
-    description: "YLT - Literal word-for-word translation",
-  },
-  {
     code: "bbe",
     name: "Bible in Basic English",
     description: "BBE - Simple vocabulary translation",
-  },
-  {
-    code: "oeb-cw",
-    name: "Open English Bible (Commonwealth)",
-    description: "OEB-CW - Modern Commonwealth English",
-  },
-  {
-    code: "oeb-us",
-    name: "Open English Bible (US)",
-    description: "OEB-US - Modern American English",
   },
   {
     code: "clementine",

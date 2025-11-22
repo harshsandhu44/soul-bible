@@ -12,10 +12,12 @@ import {
 export const useBibleTranslations = (): BibleTranslation[] => {
   const flagPayload = useFeatureFlagWithPayload("bible-translations");
 
+  console.info("[TRANSLATIONS]", flagPayload)
+
   // If feature flag has a payload, try to use it
-  if (flagPayload && typeof flagPayload === "object" && "translations" in flagPayload) {
+  if (flagPayload) {
     try {
-      const translations = (flagPayload as { translations: unknown }).translations;
+      const translations = (flagPayload as any[])[1];
 
       // Validate that it's an array
       if (Array.isArray(translations)) {

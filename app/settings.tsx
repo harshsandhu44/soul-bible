@@ -228,15 +228,6 @@ export default function SettingsScreen() {
                   value={translation.code}
                   labelStyle={{ color: theme.colors.onSurface }}
                 />
-                <Text
-                  variant="bodySmall"
-                  style={[
-                    styles.translationDescription,
-                    { color: theme.colors.onSurfaceVariant },
-                  ]}
-                >
-                  {translation.description}
-                </Text>
               </View>
             ))}
           </RadioButton.Group>
@@ -411,7 +402,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   translationDescription: {
-    marginLeft: 56,
+    marginLeft: 16,
     marginTop: -8,
     marginBottom: 8,
   },
