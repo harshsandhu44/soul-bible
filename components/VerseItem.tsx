@@ -17,6 +17,7 @@ import {
 } from "@/store/notesStore";
 import { FontFamily, LineSpacing } from "@/store/userPreferencesStore";
 import { useFeatureFlag } from "posthog-react-native";
+import TranslationComparisonModal from "@/components/TranslationComparisonModal";
 
 interface VerseItemProps {
   verse: BibleVerse;
@@ -41,6 +42,7 @@ export default function VerseItem({
   const [menuVisible, setMenuVisible] = useState(false);
   const [snackbarVisible, setSnackbarVisible] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [comparisonModalVisible, setComparisonModalVisible] = useState(false);
   const highlightingEnabled = useFeatureFlag("verse-highlighting") ?? false;
   const notesEnabled = useFeatureFlag("verse-notes") ?? false;
 
@@ -128,6 +130,11 @@ export default function VerseItem({
     }
   };
 
+  const handleCompareTranslations = () => {
+    setMenuVisible(false);
+    setComparisonModalVisible(true);
+  };
+
   const getFontFamily = () => {
     if (fontFamily === "system") return undefined;
     if (fontFamily === "serif") return "Georgia";
@@ -199,6 +206,11 @@ export default function VerseItem({
         leadingIcon="content-copy"
         onPress={handleCopy}
       />
+      <Menu.Item
+        title="Compare Translations"
+        leadingIcon="book-multiple"
+        onPress={handleCompareTranslations}
+      />
       {notesEnabled && (
         <Menu.Item
           title="Add Note"
@@ -252,6 +264,14 @@ export default function VerseItem({
       >
         {snackbarMessage}
       </Snackbar>
+      <TranslationComparisonModal
+        visible={comparisonModalVisible}
+        onDismiss={() => setComparisonModalVisible(false)}
+        book={book}
+        chapter={chapter}
+        verseNumber={verseNumber}
+        bookName={getBookName()}
+      />
     </>
   );
 }
