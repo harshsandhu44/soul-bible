@@ -17,6 +17,7 @@ import {
 import { useUserPreferencesStore } from "@/store/userPreferencesStore";
 import { useBibleReadingStore } from "@/store/bibleReadingStore";
 import { useFeatureFlags } from "posthog-react-native";
+import ProgressCard from "@/components/ProgressCard";
 
 export default function Index() {
   const theme = usePaperTheme();
@@ -107,6 +108,9 @@ export default function Index() {
             ) : null}
           </Card.Content>
         </Card>
+
+        {/* Progress Card */}
+        <ProgressCard />
 
         <Divider style={styles.sectionDivider} />
 
