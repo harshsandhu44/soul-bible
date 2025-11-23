@@ -16,12 +16,14 @@ import {
 } from "@/services/bibleService";
 import { useUserPreferencesStore } from "@/store/userPreferencesStore";
 import { useBibleReadingStore } from "@/store/bibleReadingStore";
-import { useFeatureFlags } from "posthog-react-native";
+import { useFeatureFlags, useFeatureFlag } from "posthog-react-native";
+import ProgressCard from "@/components/ProgressCard";
 
 export default function Index() {
   const theme = usePaperTheme();
   const router = useRouter();
   const featureFlags = useFeatureFlags();
+  const progressTrackingEnabled = useFeatureFlag("reading-progress") ?? false;
   const { preferredTranslation } = useUserPreferencesStore();
   const { lastBook, lastChapter } = useBibleReadingStore();
   const [verse, setVerse] = useState<BibleVerse | null>(null);
@@ -107,6 +109,9 @@ export default function Index() {
             ) : null}
           </Card.Content>
         </Card>
+
+        {/* Progress Card */}
+        {progressTrackingEnabled && <ProgressCard />}
 
         <Divider style={styles.sectionDivider} />
 

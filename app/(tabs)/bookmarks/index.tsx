@@ -29,8 +29,8 @@ export default function BookmarksScreen() {
     router.push(`/bible/${book}/${chapter}`);
   };
 
-  const handleRemoveBookmark = (book: string, chapter: number) => {
-    removeBookmark(book, chapter);
+  const handleRemoveBookmark = (book: string, chapter: number, verse?: number) => {
+    removeBookmark(book, chapter, verse);
   };
 
   // Empty state
@@ -96,15 +96,20 @@ export default function BookmarksScreen() {
 
       <FlatList
         data={sortedBookmarks}
-        keyExtractor={(item) => `${item.book}-${item.chapter}`}
+        keyExtractor={(item) =>
+          item.verse !== undefined
+            ? `${item.book}-${item.chapter}-${item.verse}`
+            : `${item.book}-${item.chapter}`
+        }
         renderItem={({ item }) => (
           <BookmarkListItem
             bookName={item.bookName}
             chapter={item.chapter}
+            verse={item.verse}
             isRead={hasReadChapter(item.book, item.chapter)}
             timestamp={item.timestamp}
             onPress={() => handleBookmarkPress(item.book, item.chapter)}
-            onRemove={() => handleRemoveBookmark(item.book, item.chapter)}
+            onRemove={() => handleRemoveBookmark(item.book, item.chapter, item.verse)}
           />
         )}
         contentContainerStyle={styles.listContent}
