@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { View, StyleSheet, ScrollView } from "react-native";
 import {
   Text,
@@ -10,6 +10,7 @@ import {
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useProgressStore } from "@/store/progressStore";
 import { useRouter } from "expo-router";
+import { useFeatureFlag } from "posthog-react-native";
 import ReadingCalendar from "@/components/ReadingCalendar";
 
 // Format relative time
@@ -39,8 +40,16 @@ const formatDate = (dateStr: string): string => {
 export default function ProgressScreen() {
   const theme = usePaperTheme();
   const router = useRouter();
+  const progressTrackingEnabled = useFeatureFlag("reading-progress") ?? false;
   const { dailyProgress, streakData, getWeeklyStats, getMonthlyStats } =
     useProgressStore();
+
+  // Navigation guard - redirect if feature is disabled
+  useEffect(() => {
+    if (!progressTrackingEnabled) {
+      router.replace("/");
+    }
+  }, [progressTrackingEnabled, router]);
 
   // Calculate lifetime stats
   const lifetimeChapters = dailyProgress.reduce(

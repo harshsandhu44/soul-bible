@@ -48,6 +48,7 @@ export default function ChapterReaderScreen() {
   const { updateDailyProgress } = useProgressStore();
   const showAudioPlayer = useFeatureFlag("audio-player") ?? false;
   const notesEnabled = useFeatureFlag("verse-notes") ?? false;
+  const progressTrackingEnabled = useFeatureFlag("reading-progress") ?? false;
   const { stopPlayback } = useAudioPlayerStore();
 
   const { getNote, addNote, updateNote, removeNote } = useNotesStore();
@@ -97,7 +98,9 @@ export default function ChapterReaderScreen() {
       await setLastPosition(book, chapterNum);
 
       // Update daily progress (1 chapter, number of verses)
-      await updateDailyProgress(1, data.verses.length);
+      if (progressTrackingEnabled) {
+        await updateDailyProgress(1, data.verses.length);
+      }
     } catch (err) {
       console.error("Error fetching chapter:", err);
       setError(

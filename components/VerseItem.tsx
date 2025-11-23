@@ -46,6 +46,9 @@ export default function VerseItem({
   const [comparisonModalVisible, setComparisonModalVisible] = useState(false);
   const highlightingEnabled = useFeatureFlag("verse-highlighting") ?? false;
   const notesEnabled = useFeatureFlag("verse-notes") ?? false;
+  const sharingEnabled = useFeatureFlag("verse-sharing") ?? false;
+  const translationComparisonEnabled = useFeatureFlag("translation-comparison") ?? false;
+  const verseBookmarksEnabled = useFeatureFlag("verse-bookmarks") ?? false;
 
   const verseNumber = parseInt(verse.reference, 10);
 
@@ -223,26 +226,34 @@ export default function VerseItem({
         }
         contentStyle={{ backgroundColor: theme.colors.surface }}
       >
-      <Menu.Item
-        title="Share"
-        leadingIcon="share-variant"
-        onPress={handleShare}
-      />
-      <Menu.Item
-        title="Copy"
-        leadingIcon="content-copy"
-        onPress={handleCopy}
-      />
-      <Menu.Item
-        title="Compare Translations"
-        leadingIcon="book-multiple"
-        onPress={handleCompareTranslations}
-      />
-      <Menu.Item
-        title={isBookmarked ? "Remove Verse Bookmark" : "Bookmark Verse"}
-        leadingIcon={isBookmarked ? "bookmark-remove" : "bookmark-plus"}
-        onPress={handleToggleVerseBookmark}
-      />
+      {sharingEnabled && (
+        <>
+          <Menu.Item
+            title="Share"
+            leadingIcon="share-variant"
+            onPress={handleShare}
+          />
+          <Menu.Item
+            title="Copy"
+            leadingIcon="content-copy"
+            onPress={handleCopy}
+          />
+        </>
+      )}
+      {translationComparisonEnabled && (
+        <Menu.Item
+          title="Compare Translations"
+          leadingIcon="book-multiple"
+          onPress={handleCompareTranslations}
+        />
+      )}
+      {verseBookmarksEnabled && (
+        <Menu.Item
+          title={isBookmarked ? "Remove Verse Bookmark" : "Bookmark Verse"}
+          leadingIcon={isBookmarked ? "bookmark-remove" : "bookmark-plus"}
+          onPress={handleToggleVerseBookmark}
+        />
+      )}
       {notesEnabled && (
         <Menu.Item
           title="Add Note"
